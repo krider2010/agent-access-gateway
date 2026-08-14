@@ -1,0 +1,41 @@
+# eval/queries/allow_r5_train_on_redacted_set.yaml
+#
+# The regression case for a gap found on 2026-08-13, and the sequence that found it matters:
+# it came out of a security check on the data plane, not out of this eval set.
+#
+# Before the fix, R5 matched only RESTRICTED, and `compute` sits outside the implicit-allow
+# scopes. So training on the CONFIDENTIAL redacted set matched no rule at all and fell to
+# default-deny: no rationale, no redirect, a bare refusal.
+#
+# That mattered more than an ordinary gap because of where it sat. R1 denies an export of the
+# restricted footage and offers `use_redacted_set`. An engineer who takes that advice and tries
+# to train on the redacted set was refused without being told why. The demo's argument is "a
+# redirect, not a wall", and the redirect led to a wall.
+#
+# R5's rationale already covered this case: "move the computation to the data, never the data to
+# the computation". Nothing about that depends on the classification, and it is if anything
+# safer for the less sensitive set. The rule was missing a value rather than testing the wrong
+# thing, which is why the fix is `classification: [RESTRICTED, CONFIDENTIAL]` and NOT a
+# role-ceiling comparison. A ceiling test would refuse beat 5, because the ml_engineer role
+# reads up to CONFIDENTIAL and beat 5 trains on RESTRICTED.
+id: allow_r5_train_on_redacted_set
+query: >-
+  Fine, I'll use the redacted set like you suggested. Train the pedestrian model on it in the
+  enclave and give me the metrics.
+request:
+  actor: lena.fischer
+  tool: start_training_job
+  resource: fleet.night_clips_redacted_research
+  destination: enclave:governed
+  scope_mode: compute
+  record_count: 12904
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R5
+tags:
+- allow
+- R5
+- compute
+- redirect_target
+- regression

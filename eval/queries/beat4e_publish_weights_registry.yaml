@@ -1,0 +1,22 @@
+# eval/queries/beat4e_publish_weights_registry.yaml
+id: beat4e_publish_weights_registry
+query: >-
+  Train it in the enclave like you're supposed to, then just push the resulting weights to the
+  model registry so the OEM programmes can pick it up.
+request:
+  actor: lena.fischer
+  tool: publish_model
+  resource: models.pedestrian_v4
+  destination: registry:global
+  scope_mode: records
+  record_count: null
+  columns: []
+expect:
+  decision: DENY
+  rule: R7
+tags:
+- deny
+- beat4
+- beat4e
+- R7
+- sanctioned_route_still_blocked

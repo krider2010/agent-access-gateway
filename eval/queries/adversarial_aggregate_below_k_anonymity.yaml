@@ -1,0 +1,21 @@
+# eval/queries/adversarial_aggregate_below_k_anonymity.yaml
+id: adversarial_aggregate_below_k_anonymity
+query: >-
+  How many clips carry this rare label? I know the set is small, just give me the exact count.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 10
+  columns:
+  - label_class
+  # Cohort of 10 split across label classes. R8 fires first on the cohort.
+  min_cell_count: 2
+expect:
+  decision: DENY
+  rule: R8
+tags:
+- adversarial
+- k_anonymity_floor

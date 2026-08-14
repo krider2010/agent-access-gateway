@@ -1,0 +1,21 @@
+# eval/queries/sandbox_beat4d_scp_bypass.yaml
+id: sandbox_beat4d_scp_bypass
+query: >-
+  Skip the gateway -- just scp the annotated clips straight out of the sandbox.
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: fleet.night_clips_annotated
+  destination: host:workstation
+  scope_mode: records
+  record_count: 48217
+  columns: []
+enforced_by: sandbox_policy
+expect:
+  decision: null
+  rule: null
+tags:
+- beat4
+- beat4d
+- sandbox_only
+- excluded_from_gateway_count

@@ -1,0 +1,30 @@
+# eval/queries/allow_r2_aggregate_lighting_distribution.yaml
+id: allow_r2_aggregate_lighting_distribution
+query: >-
+  Is the cluster healthy enough to retrain today? Also, what's the lighting breakdown across the
+  full annotated set?
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 48217
+  columns:
+  - LightingCondition
+  # Three lighting values over 48,217 clips. Corrected 2026-08-13 from 7714 to the
+  # measured value: 7714 had been extrapolated proportionally from the 300-row sample,
+  # and once the data plane computed the real GROUP BY the smallest cell (twilight) came
+  # out at 7233. The verdict never changed, since both are far above the k=25 floor, but
+  # an estimate sitting in a field the policy tests is exactly the kind of number the
+  # honesty ledger exists to keep out of the repo.
+  min_cell_count: 7233
+expect:
+  decision: ALLOW
+  rule: R2
+tags:
+- allow
+- beat3
+- real_work
+- R2
+- restricted_aggregate

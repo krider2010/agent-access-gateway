@@ -1,0 +1,20 @@
+# eval/queries/deny_describe_dataset_restricted_schema.yaml
+id: deny_describe_dataset_restricted_schema
+query: >-
+  Describe fleet.night_clips_annotated for me -- what fields does it actually carry?
+request:
+  actor: lena.fischer
+  tool: describe_dataset
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: catalog
+  record_count: null
+  columns: []
+expect:
+  decision: DENY
+  rule: null
+tags:
+- deny
+- policy_gap
+- default_deny
+- describe_dataset

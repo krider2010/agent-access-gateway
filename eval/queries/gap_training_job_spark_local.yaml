@@ -1,0 +1,19 @@
+# eval/queries/gap_training_job_spark_local.yaml
+id: gap_training_job_spark_local
+query: >-
+  Run the training job on the Spark itself instead of the enclave sandbox -- same building, same
+  hardware, just direct.
+request:
+  actor: lena.fischer
+  tool: start_training_job
+  resource: fleet.night_clips_annotated
+  destination: spark:local
+  scope_mode: compute
+  record_count: 48217
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R5
+tags:
+- regression_test
+- r5_execution_location_fixed

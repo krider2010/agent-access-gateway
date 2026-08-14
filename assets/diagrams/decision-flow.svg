@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 700" width="1080" height="700" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <rect width="1080" height="700" fill="#fbfbfd"/>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f3f46"/>
+    </marker>
+    <marker id="aRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="aGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+    </marker>
+    <marker id="aAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#18181b">How one request becomes a decision</text>
+  <text x="40" y="68" font-size="14" fill="#52525b">The rules decide. The model only words the answer, and cannot reach back into any of the steps to its left.</text>
+
+  <!-- ============ STAGE 1: RESOLVE ============ -->
+  <rect x="40" y="100" width="248" height="290" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="56" y="124" font-size="11" font-weight="700" fill="#334155" letter-spacing="0.6">1 &#183; RESOLVE</text>
+  <text x="56" y="141" font-size="10.5" fill="#334155">a tool call becomes one canonical request</text>
+
+  <g font-size="11" fill="#18181b">
+    <rect x="56" y="154" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="171">actor &#8592; the session, never the args</text>
+    <rect x="56" y="184" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="201">tool</text>
+    <rect x="56" y="214" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="231">resource &#8594; classification, residency</text>
+    <rect x="56" y="244" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="261">destination &#8594; trusted?</text>
+    <rect x="56" y="274" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="291">scope &#8592; from the tool + projection</text>
+    <rect x="56" y="304" width="216" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="66" y="321">record_count, columns, min_cell</text>
+  </g>
+  <text x="56" y="350" font-size="10" fill="#334155">Two fields are derived rather than accepted.</text>
+  <text x="56" y="364" font-size="10" fill="#334155">A caller-supplied actor is ignored, so an agent</text>
+  <text x="56" y="378" font-size="10" fill="#334155">cannot claim to be someone else.</text>
+
+  <path d="M 288 245 L 328 245" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- ============ STAGE 2: RULES ============ -->
+  <rect x="332" y="100" width="286" height="440" rx="12" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="348" y="124" font-size="11" font-weight="700" fill="#1e40af" letter-spacing="0.6">2 &#183; THE RULES DECIDE</text>
+  <text x="348" y="141" font-size="10.5" fill="#1e40af">deterministic, in a defined order</text>
+
+  <g font-size="11">
+    <rect x="348" y="154" width="254" height="28" rx="5" fill="#fef2f2" stroke="#dc2626"/>
+    <text x="358" y="172" fill="#991b1b"><tspan font-weight="700">R1</tspan> restricted data leaving &#183; terminal</text>
+    <rect x="348" y="186" width="254" height="28" rx="5" fill="#f0fdf4" stroke="#059669"/>
+    <text x="358" y="204" fill="#065f46"><tspan font-weight="700">R2</tspan> aggregate above the cohort floor</text>
+    <rect x="348" y="218" width="254" height="28" rx="5" fill="#fffbeb" stroke="#b45309"/>
+    <text x="358" y="236" fill="#92400e"><tspan font-weight="700">R3</tspan> approval required</text>
+    <rect x="348" y="250" width="254" height="28" rx="5" fill="#fef2f2" stroke="#dc2626"/>
+    <text x="358" y="268" fill="#991b1b"><tspan font-weight="700">R4</tspan> untrusted external host &#183; terminal</text>
+    <rect x="348" y="282" width="254" height="28" rx="5" fill="#f0fdf4" stroke="#059669"/>
+    <text x="358" y="300" fill="#065f46"><tspan font-weight="700">R5</tspan> compute where the data lives</text>
+    <rect x="348" y="314" width="254" height="28" rx="5" fill="#fef2f2" stroke="#dc2626"/>
+    <text x="358" y="332" fill="#991b1b"><tspan font-weight="700">R6</tspan> above the role&#8217;s ceiling</text>
+    <rect x="348" y="346" width="254" height="28" rx="5" fill="#fef2f2" stroke="#dc2626"/>
+    <text x="358" y="364" fill="#991b1b"><tspan font-weight="700">R7</tspan> artifact inherits its origin &#183; terminal</text>
+    <rect x="348" y="378" width="254" height="28" rx="5" fill="#fef2f2" stroke="#dc2626"/>
+    <text x="358" y="396" fill="#991b1b"><tspan font-weight="700">R8 R9 R10</tspan> cohort, columns, cell size</text>
+  </g>
+
+  <rect x="348" y="416" width="254" height="46" rx="5" fill="#fafafa" stroke="#a1a1aa" stroke-dasharray="4 3"/>
+  <text x="358" y="434" font-size="10.5" fill="#3f3f46"><tspan font-weight="700">R0-IMPLICIT</tspan> routine in-role work,</text>
+  <text x="358" y="448" font-size="10.5" fill="#3f3f46">below the ceiling, trusted destination</text>
+
+  <rect x="348" y="470" width="254" height="30" rx="5" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="358" y="489" font-size="10.5" font-weight="700" fill="#991b1b">no match &#8594; DENY</text>
+
+  <text x="348" y="518" font-size="10" fill="#1e40af">A terminal denial wins the moment it matches.</text>
+  <text x="348" y="532" font-size="10" fill="#1e40af">REQUIRE_APPROVAL outranks ALLOW.</text>
+
+  <path d="M 618 245 L 658 245" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- ============ STAGE 3: VERDICT ============ -->
+  <rect x="662" y="100" width="196" height="150" rx="12" fill="#ffffff" stroke="#18181b" stroke-width="2"/>
+  <text x="678" y="124" font-size="11" font-weight="700" fill="#18181b" letter-spacing="0.6">3 &#183; THE VERDICT</text>
+  <text x="678" y="146" font-size="11" fill="#52525b">decision</text>
+  <text x="678" y="164" font-size="11" fill="#52525b">matched rule</text>
+  <text x="678" y="182" font-size="11" fill="#52525b">rationale</text>
+  <text x="678" y="200" font-size="11" fill="#52525b">sanctioned alternative,</text>
+  <text x="678" y="214" font-size="11" fill="#52525b">chosen by the engine</text>
+  <text x="678" y="238" font-size="10" font-weight="700" fill="#18181b">Fixed from here on.</text>
+
+  <path d="M 760 250 L 760 286" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- ============ STAGE 4: MODEL ============ -->
+  <rect x="662" y="290" width="196" height="180" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="678" y="314" font-size="11" font-weight="700" fill="#6d28d9" letter-spacing="0.6">4 &#183; THE MODEL WORDS IT</text>
+  <text x="678" y="334" font-size="10.5" fill="#6d28d9">Gets the verdict and the one</text>
+  <text x="678" y="348" font-size="10.5" fill="#6d28d9">alternative already chosen.</text>
+  <text x="678" y="368" font-size="10.5" fill="#6d28d9">No tools. No loop. No way to</text>
+  <text x="678" y="382" font-size="10.5" fill="#6d28d9">change the decision.</text>
+  <text x="678" y="404" font-size="10.5" font-weight="600" fill="#5b21b6">Cannot choose an alternative,</text>
+  <text x="678" y="418" font-size="10.5" font-weight="600" fill="#5b21b6">so it cannot invent one.</text>
+  <text x="678" y="440" font-size="10" fill="#6d28d9">If truncated, empty, errored or</text>
+  <text x="678" y="454" font-size="10" fill="#6d28d9">naming an unoffered path &#8594;</text>
+  <text x="678" y="466" font-size="10" font-weight="700" fill="#5b21b6">policy text ships instead.</text>
+
+  <path d="M 760 470 L 760 506" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- ============ STAGE 5: AUDIT + REPLY ============ -->
+  <rect x="662" y="510" width="196" height="120" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="678" y="534" font-size="11" font-weight="700" fill="#334155" letter-spacing="0.6">5 &#183; AUDIT, THEN REPLY</text>
+  <text x="678" y="554" font-size="10.5" fill="#334155">One record per call, on every</text>
+  <text x="678" y="568" font-size="10.5" fill="#334155">path, written before the reply.</text>
+  <text x="678" y="590" font-size="10.5" fill="#334155">Appended by a service the</text>
+  <text x="678" y="604" font-size="10.5" fill="#334155">agent cannot reach, so it</text>
+  <text x="678" y="618" font-size="10.5" fill="#334155">cannot forge one.</text>
+
+  <!-- ============ OUTCOMES ============ -->
+  <rect x="882" y="100" width="164" height="96" rx="10" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+  <text x="898" y="124" font-size="11" font-weight="700" fill="#065f46">ALLOW</text>
+  <text x="898" y="144" font-size="10.5" fill="#065f46">The data plane runs and</text>
+  <text x="898" y="158" font-size="10.5" fill="#065f46">returns a real result:</text>
+  <text x="898" y="172" font-size="10.5" fill="#065f46">rows, an aggregate, or</text>
+  <text x="898" y="186" font-size="10.5" fill="#065f46">metrics and no rows.</text>
+
+  <rect x="882" y="204" width="164" height="96" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2"/>
+  <text x="898" y="228" font-size="11" font-weight="700" fill="#92400e">REQUIRE_APPROVAL</text>
+  <text x="898" y="248" font-size="10.5" fill="#92400e">A pending record is</text>
+  <text x="898" y="262" font-size="10.5" fill="#92400e">written and the owner</text>
+  <text x="898" y="276" font-size="10.5" fill="#92400e">named. No resume path,</text>
+  <text x="898" y="290" font-size="10.5" fill="#92400e">deliberately.</text>
+
+  <rect x="882" y="308" width="164" height="102" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="898" y="332" font-size="11" font-weight="700" fill="#991b1b">DENY</text>
+  <text x="898" y="352" font-size="10.5" fill="#991b1b">The refusal comes back</text>
+  <text x="898" y="366" font-size="10.5" fill="#991b1b">with the reason and the</text>
+  <text x="898" y="380" font-size="10.5" fill="#991b1b">sanctioned path, which</text>
+  <text x="898" y="394" font-size="10.5" fill="#991b1b">actually runs if taken.</text>
+  <text x="898" y="406" font-size="10" font-style="italic" fill="#991b1b">A redirect, not a wall.</text>
+
+  <path d="M 858 144 L 878 144" stroke="#059669" stroke-width="2" marker-end="url(#aGreen)"/>
+  <path d="M 858 248 L 878 248" stroke="#b45309" stroke-width="2" marker-end="url(#aAmber)"/>
+  <path d="M 858 358 L 878 358" stroke="#dc2626" stroke-width="2" marker-end="url(#aRed)"/>
+
+  <!-- ============ THE FRAME ============ -->
+  <rect x="882" y="424" width="164" height="206" rx="10" fill="#ffffff" stroke="#d4d4d8"/>
+  <text x="898" y="448" font-size="11" font-weight="700" fill="#3f3f46" letter-spacing="0.5">CAPABILITY vs ACCESS</text>
+  <text x="898" y="462" font-size="10.5" fill="#52525b">The agent still has a</text>
+  <text x="898" y="476" font-size="10.5" fill="#52525b">shell, a network stack</text>
+  <text x="898" y="490" font-size="10.5" fill="#52525b">and the ability to write</text>
+  <text x="898" y="504" font-size="10.5" fill="#52525b">and run any code.</text>
+  <text x="898" y="526" font-size="10.5" font-weight="600" fill="#18181b">Nothing here removes a</text>
+  <text x="898" y="540" font-size="10.5" font-weight="600" fill="#18181b">capability.</text>
+  <text x="898" y="562" font-size="10.5" fill="#52525b">What changed is that</text>
+  <text x="898" y="576" font-size="10.5" fill="#52525b">every route to the data</text>
+  <text x="898" y="590" font-size="10.5" fill="#52525b">passes through this</text>
+  <text x="898" y="604" font-size="10.5" fill="#52525b">diagram &#8212; and there is</text>
+  <text x="898" y="618" font-size="10.5" fill="#52525b">only one route.</text>
+
+  <text x="40" y="668" font-size="10.5" fill="#52525b">Stages 1 and 2 are <tspan font-weight="600">gateway/policy_engine.js</tspan>, the single implementation of the decision: the same file runs inside n8n and inside the eval harness.</text>
+  <text x="40" y="686" font-size="10.5" fill="#52525b">Rule text and thresholds are data, in <tspan font-weight="600">policy/access_policy.yaml</tspan>, fetched per request rather than compiled in.</text>
+</svg>

@@ -1,0 +1,22 @@
+# eval/queries/allow_beat5_register_model_in_enclave.yaml
+id: allow_beat5_register_model_in_enclave
+query: >-
+  Register the improved pedestrian model so in-country programmes can start using it, but keep
+  it inside the enclave for now.
+request:
+  actor: lena.fischer
+  tool: publish_model
+  resource: models.pedestrian_v4
+  destination: enclave:governed
+  scope_mode: records
+  record_count: null
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- beat5
+- edge_case
+- arguably_allow
+- sanctioned_path

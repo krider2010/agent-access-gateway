@@ -1,0 +1,181 @@
+# OpenShell sandbox network + filesystem policy.
+#
+# One of TWO independent enforcement layers in this demo:
+#   1. This file governs the NETWORK: which processes inside the sandbox may
+#      reach which hosts and ports at all. It has no idea what data flows
+#      over an allowed connection.
+#   2. The n8n Access Gateway (policy/access_policy.yaml) governs DATA: what
+#      a given identity may read, aggregate, export or run, regardless of
+#      network reachability.
+#
+# Both must hold. An agent that talks its way past the gateway's data rules
+# still can't reach anything this policy hasn't opened, and an agent that
+# finds an open port still can't get data the gateway wouldn't hand it. The
+# gateway's front door is the ONLY thing behind the one open port
+# (access_gateway_front_door, below). Applied via:
+#   openshell policy set <sandbox-name> --policy policy/sandbox_policy.yaml --wait
+#
+# Trimmed from the upstream NVIDIA demo scaffold: this demo uses no Claude
+# Code, GitHub, or direct NVIDIA API egress from inside the sandbox, so the
+# `claude_code`, `github`, `github_rest_api` and `nvidia` blocks were
+# dropped. `pypi` went on 2026-08-13, once the skill client no longer needed
+# a package index (see below). One network block is left.
+version: 1
+filesystem_policy:
+  include_workdir: true
+  read_only:
+    - /usr
+    - /lib
+    - /proc
+    - /dev/urandom
+    - /app
+    - /etc
+    - /var/log
+  read_write:
+    - /sandbox
+    - /sandbox/.openclaw
+    - /sandbox/.openclaw-data
+    - /sandbox/.nemoclaw
+    - /tmp
+    - /dev/null
+landlock:
+  compatibility: best_effort
+process:
+  run_as_user: sandbox
+  run_as_group: sandbox
+network_policies:
+  # The gateway's MCP front door: the n8n MCP Server Trigger fronting the
+  # access-decision workflow. The ONLY route out of the sandbox to anything of
+  # the company's, and every request over it is subject to the gateway's data
+  # policy.
+  #
+  # Note what is NOT here. The host also runs the gateway's policy and audit
+  # service on 4301, which serves the policy document the decision reads and
+  # accepts audit records; an agent that reached it could learn the rules it is
+  # governed by and file a record claiming it was allowed something. No rule
+  # mentions 4301, so it is unreachable by default rather than by exception: it
+  # answers 403 policy_denied before the request leaves the sandbox, and
+  # install.sh asserts that on every run.
+  #
+  # THE GRANT IS A PATH, NOT JUST A PORT. Getting there took two attempts.
+  #
+  # n8n serves its own management API (/mcp-server/http, which can run any
+  # workflow) and the gateway's front door on the SAME port, 5678. A grant of
+  # the bare port hands over both, which is how most of this build ran: the
+  # management API answered 401 rather than a policy denial, so a bearer token
+  # stood between the agent and it, not the network.
+  #
+  # `protocol: rest` plus explicit `rules` fixes that. Each endpoint below
+  # permits exactly three methods on exactly one path, and the egress proxy
+  # refuses every other path on the port before it reaches n8n. Verified from
+  # inside the sandbox: /mcp-server/http and /rest/login both answer
+  # `403 ... denied by L7 policy`, while the front door works normally, MCP's
+  # POST-plus-SSE framing included.
+  #
+  # ⚠ `enforcement: enforce` IS LOAD-BEARING AND ITS ABSENCE FAILS SILENTLY.
+  # With `protocol: rest` and these rules but no `enforcement:` line, every
+  # unlisted path still reached n8n; measured, not assumed. Worse,
+  # `openshell policy prove` reported PASS in that state, because it analyses
+  # the rules as written rather than the mode they run in: a prover saying PASS
+  # over a policy that enforces nothing. If you add L7 rules anywhere, set
+  # `enforcement: enforce`, then confirm a denial from inside the sandbox rather
+  # than trusting the prover. Accepted values: `enforce` and `audit`.
+  #
+  # `n8n/workflows/isolate.sh` still switches the management API off after every
+  # build. Belt and braces now rather than the only control, and it stays: this
+  # file governs one sandbox, the toggle closes the surface to everything on the
+  # host.
+  access_gateway_front_door:
+    name: access_gateway_front_door
+    endpoints:
+      - host: host.openshell.internal
+        port: 5678
+        protocol: rest
+        enforcement: enforce
+        # NOT an `access:` preset. A preset expands into blanket rules for every
+        # method against path '**', re-opening the management API this block
+        # exists to close.
+        rules:
+          # POST carries every MCP call. GET is the SSE stream the protocol
+          # upgrades to. DELETE ends a session. Nothing else is needed, and a
+          # method absent here is refused.
+          - allow: { method: POST, path: /mcp/kerbline-access-gateway }
+          - allow: { method: GET, path: /mcp/kerbline-access-gateway }
+          - allow: { method: DELETE, path: /mcp/kerbline-access-gateway }
+        allowed_ips:
+          - 172.17.0.1        # Docker Desktop / standard Docker bridge
+          # host.openshell.internal resolves differently per container runtime
+          # and OpenShell build; on the host this was developed against, to
+          # 0.250.250.254 rather than the Docker bridge above. The SSRF guard
+          # matches the *resolved* IP against this list, so an unlisted address
+          # is denied with "ssrf_denied". CHECK THE RESOLVED IP ON YOUR OWN
+          # HOST and add it here; this list is environment-specific.
+          - 0.250.250.254
+      # For builds that present the host on the sandbox's own loopback via a
+      # port-forward rather than under host.openshell.internal. Same rules: a
+      # second spelling of one route is still one route only if scoped
+      # identically.
+      - host: 127.0.0.1
+        port: 5678
+        protocol: rest
+        enforcement: enforce
+        rules:
+          - allow: { method: POST, path: /mcp/kerbline-access-gateway }
+          - allow: { method: GET, path: /mcp/kerbline-access-gateway }
+          - allow: { method: DELETE, path: /mcp/kerbline-access-gateway }
+    # The skill client is Node, so `node` has to be listed, and the enforcement
+    # point matches the RESOLVED path of the executable. In this image `node` is
+    # a regular file at /usr/local/bin/node, not a symlink (`readlink -f`
+    # returns the same path), so one entry covers it. Confirm the path on your
+    # own image before trusting this line:
+    #   openshell sandbox exec -n <name> -- sh -c 'readlink -f $(command -v node)'
+    #
+    # Because the match is on the resolved path, this list cannot distinguish
+    # two names for one executable. That is why the Python entries below could
+    # never single out the skill's own virtualenv, and why the venv globs that
+    # used to sit here did nothing.
+    #
+    # This list is not decoration. It IS enforced, and usefully: `curl` is not on
+    # it, `curl` against this port answers 403 policy_denied, and `curl` at an
+    # arbitrary external host gets no response at all. What it cannot do is tell
+    # two paths to one binary apart. So it keeps every other binary in the
+    # sandbox away from the gateway; it cannot promise that only the skill's own
+    # copy of Node reaches it. Do not claim the narrower version.
+    #
+    # The single-route property rests on the endpoint list above (one port, with
+    # the gateway behind it), with this list as a coarser second filter.
+    #
+    # Python is still listed, though nothing the agent runs needs it: the skill
+    # client became Node on 2026-08-13 and its virtualenv is gone, along with
+    # eighteen venv globs that matched nothing. It stays because Step 6 of
+    # install.sh patches openclaw.json through the sandbox's own python3, and
+    # because the versioned entries absorb whichever minor version the base
+    # image resolves /usr/bin/python3 to. Adding a Python path that reaches the
+    # front door would be a different decision, and there is no longer a reason
+    # to make it.
+    binaries:
+      - { path: /usr/local/bin/node }
+      - { path: /usr/bin/python3 }
+      - { path: /usr/bin/python3.10 }
+      - { path: /usr/bin/python3.11 }
+      - { path: /usr/bin/python3.12 }
+      - { path: /usr/bin/python3.13 }
+  # THERE IS DELIBERATELY NO SECOND BLOCK HERE. The front door above is this
+  # sandbox's only network egress, and that is the demo's central claim rather
+  # than a tidy default: an agent that can reach nothing else cannot route
+  # around the one thing it can reach.
+  #
+  # A `pypi` block used to sit here, opening 443 to pypi.org,
+  # files.pythonhosted.org, github.com, objects.githubusercontent.com,
+  # api.github.com and downloads.python.org, so the skill's virtualenv could be
+  # bootstrapped from inside the sandbox. It went on 2026-08-13 once the client
+  # became dependency-free, and the virtualenv went later the same day: the
+  # client is Node, `node` ships in the base image, and `install.sh` has no
+  # interpreter-bootstrapping step at all.
+  #
+  # Do not re-add it, or an npm equivalent, to make a dependency work. A skill
+  # needing a package from the internet at install time reopens six hosts' worth
+  # of egress to remove one import, and every one is a route the agent can use
+  # too. Vendor the dependency into `skill/`, or do without: the client stays
+  # inside Node's standard library so this stays true. There is no
+  # `node_modules` in the sandbox and nothing should create one.

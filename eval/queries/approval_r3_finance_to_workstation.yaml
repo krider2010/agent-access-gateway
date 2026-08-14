@@ -1,0 +1,19 @@
+# eval/queries/approval_r3_finance_to_workstation.yaml
+id: approval_r3_finance_to_workstation
+query: >-
+  Can you copy this quarter's infra spend numbers to my personal machine so I can build a chart
+  tonight?
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: finance.infra_spend_fy26q3
+  destination: host:workstation
+  scope_mode: records
+  record_count: 2204
+  columns: []
+expect:
+  decision: REQUIRE_APPROVAL
+  rule: R3
+tags:
+- require_approval
+- R3

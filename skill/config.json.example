@@ -1,0 +1,4 @@
+{
+  "server_url": "http://host.openshell.internal:5678/mcp/kerbline-access-gateway",
+  "timeout_sec": 180
+}

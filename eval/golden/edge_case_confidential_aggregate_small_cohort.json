@@ -1,0 +1,10 @@
+{
+  "case_id": "edge_case_confidential_aggregate_small_cohort",
+  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "engine_decision": "ALLOW",
+  "engine_matched_rule": "R0-IMPLICIT",
+  "redirects_offered": [],
+  "answer_source": "model",
+  "response_text": "The request is allowed because the resource's classification and destination meet the trust criteria, even though no specific policy rule applies. This is a default allowance based on the system's fallback settings. There is no sanctioned alternative for this request.\n",
+  "redirect_chosen": null
+}

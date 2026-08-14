@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <rect width="1000" height="640" fill="#fbfbfd"/>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f3f46"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="44" font-size="21" font-weight="600" fill="#18181b">Where the access gateway sits in the OpenShell stack</text>
+  <text x="40" y="68" font-size="14" fill="#52525b">The sandbox components are unchanged. The gateway adds the plane above them.</text>
+
+  <!-- LAYER 1 -->
+  <rect x="40" y="100" width="310" height="376" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="58" y="126" font-size="12" font-weight="700" fill="#6d28d9" letter-spacing="0.6">LAYER 1 &#183; RUNTIME AND NETWORK</text>
+  <text x="58" y="144" font-size="12" fill="#6d28d9">NemoClaw / OpenShell sandbox</text>
+
+  <rect x="60" y="158" width="270" height="30" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="74" y="178" font-size="12.5" fill="#18181b">Gateway</text>
+  <rect x="60" y="194" width="270" height="30" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="74" y="214" font-size="12.5" fill="#18181b">Sandbox Supervisor</text>
+
+  <rect x="60" y="230" width="270" height="56" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="74" y="250" font-size="12.5" font-weight="600" fill="#18181b">Agent Harness</text>
+  <text x="74" y="270" font-size="11" fill="#52525b">Definition &#183; Memory &#183; Skills &#183; Sub&#8209;agents</text>
+
+  <rect x="60" y="292" width="270" height="30" rx="6" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="74" y="312" font-size="12.5" font-weight="600" fill="#5b21b6">Policy Engine</text>
+  <rect x="60" y="328" width="270" height="30" rx="6" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="74" y="348" font-size="12.5" font-weight="600" fill="#5b21b6">Network Guardrail</text>
+  <rect x="60" y="364" width="270" height="30" rx="6" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="74" y="384" font-size="12.5" font-weight="600" fill="#5b21b6">Privacy Router</text>
+
+  <text x="60" y="418" font-size="11.5" fill="#6d28d9">Governs which binaries run and which</text>
+  <text x="60" y="435" font-size="11.5" fill="#6d28d9">hosts they may reach. Already in place;</text>
+  <text x="60" y="452" font-size="11.5" fill="#6d28d9">this demo changes none of it.</text>
+
+  <!-- LAYER 2 -->
+  <rect x="420" y="100" width="300" height="376" rx="12" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="438" y="126" font-size="12" font-weight="700" fill="#1e40af" letter-spacing="0.6">LAYER 2 &#183; DATA ACCESS SEMANTICS</text>
+  <text x="438" y="144" font-size="12" fill="#1e40af">n8n access gateway</text>
+
+  <rect x="440" y="158" width="260" height="30" rx="6" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="454" y="178" font-size="12.5" fill="#18181b">Identity &#38; entitlements</text>
+  <rect x="440" y="194" width="260" height="30" rx="6" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="454" y="214" font-size="12.5" fill="#18181b">Data classification &#183; residency</text>
+  <rect x="440" y="230" width="260" height="30" rx="6" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="454" y="250" font-size="12.5" fill="#18181b">Egress guard &#183; provenance</text>
+  <rect x="440" y="266" width="260" height="34" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="454" y="288" font-size="12.5" font-weight="600" fill="#1e3a8a">Policy decision (deterministic)</text>
+  <rect x="440" y="306" width="260" height="30" rx="6" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="454" y="326" font-size="12.5" fill="#18181b">Sanctioned path</text>
+  <rect x="440" y="342" width="260" height="30" rx="6" fill="#ffffff" stroke="#93c5fd"/>
+  <text x="454" y="362" font-size="12.5" fill="#18181b">Append&#8209;only audit log</text>
+
+  <text x="440" y="400" font-size="11.5" fill="#1e40af">Governs what the data is, who is asking,</text>
+  <text x="440" y="417" font-size="11.5" fill="#1e40af">and where it is allowed to go. This is</text>
+  <text x="440" y="434" font-size="11.5" fill="#1e40af">the plane the stack does not yet have.</text>
+
+  <!-- connector -->
+  <line x1="354" y1="272" x2="416" y2="272" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+  <text x="356" y="262" font-size="11.5" font-weight="600" fill="#18181b">MCP</text>
+  <text x="356" y="290" font-size="10.5" fill="#52525b">API / CLI</text>
+
+  <!-- data -->
+  <rect x="760" y="100" width="200" height="176" rx="12" fill="#ffffff" stroke="#d4d4d8" stroke-width="1.5"/>
+  <text x="776" y="126" font-size="12" font-weight="700" fill="#3f3f46" letter-spacing="0.6">GOVERNED DATA</text>
+  <text x="776" y="150" font-size="11.5" fill="#18181b">Road camera footage</text>
+  <text x="776" y="169" font-size="10.5" fill="#b91c1c">RESTRICTED &#183; EU&#8209;DE&#8209;ONLY</text>
+  <text x="776" y="192" font-size="11.5" fill="#18181b">Trained model artifacts</text>
+  <text x="776" y="211" font-size="10.5" fill="#a16207">residency inherited</text>
+  <text x="776" y="234" font-size="11.5" fill="#18181b">Cluster telemetry</text>
+  <text x="776" y="253" font-size="10.5" fill="#15803d">INTERNAL</text>
+
+  <line x1="724" y1="188" x2="756" y2="188" stroke="#3f3f46" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- inference -->
+  <rect x="760" y="316" width="200" height="160" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="776" y="342" font-size="12" font-weight="700" fill="#065f46" letter-spacing="0.6">INFERENCE</text>
+  <text x="776" y="366" font-size="11.5" font-weight="600" fill="#065f46">Policy brain</text>
+  <text x="776" y="384" font-size="10.5" fill="#047857">Nemotron Nano 9B v2</text>
+  <text x="776" y="400" font-size="10.5" fill="#047857">Words the verdict only</text>
+  <text x="776" y="424" font-size="11.5" font-weight="600" fill="#065f46">Agent brain</text>
+  <text x="776" y="442" font-size="10.5" fill="#047857">Nemotron, larger tier</text>
+  <text x="776" y="462" font-size="10.5" fill="#047857">Self&#8209;hosted NIM at the edge</text>
+
+  <line x1="724" y1="300" x2="790" y2="312" stroke="#059669" stroke-width="2" marker-end="url(#ag)"/>
+
+  <!-- annotation -->
+  <rect x="40" y="520" width="920" height="92" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.6"/>
+  <text x="60" y="548" font-size="13" font-weight="600" fill="#78350f">The one difference from the existing architecture diagram</text>
+  <text x="60" y="572" font-size="12" fill="#92400e">There, n8n is a tool endpoint alongside Filesystem, Search and CAD: one of several things an agent may call.</text>
+  <text x="60" y="592" font-size="12" fill="#92400e">Here it is the plane every request for company data passes through, so the decision cannot be routed around.</text>
+</svg>

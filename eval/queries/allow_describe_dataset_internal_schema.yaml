@@ -1,0 +1,19 @@
+# eval/queries/allow_describe_dataset_internal_schema.yaml
+id: allow_describe_dataset_internal_schema
+query: >-
+  Describe fleet.clip_catalog for me -- what columns does it have?
+request:
+  actor: lena.fischer
+  tool: describe_dataset
+  resource: fleet.clip_catalog
+  destination: enclave:governed
+  scope_mode: catalog
+  record_count: null
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- catalog
+- real_work

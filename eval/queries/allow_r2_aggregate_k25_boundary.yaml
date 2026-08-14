@@ -1,0 +1,24 @@
+# eval/queries/allow_r2_aggregate_k25_boundary.yaml
+id: allow_r2_aggregate_k25_boundary
+query: >-
+  Just give me counts for the night-time pedestrian clips, however few of them there are.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 25
+  columns:
+  - label_class
+  # All 25 clips fall in one group, so the smallest cell is the cohort and
+  # sits exactly on the floor. Below 25 in either number would deny.
+  min_cell_count: 25
+expect:
+  decision: ALLOW
+  rule: R2
+tags:
+- allow
+- R2
+- edge_case
+- k_anonymity_boundary

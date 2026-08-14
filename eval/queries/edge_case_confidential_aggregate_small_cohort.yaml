@@ -1,0 +1,25 @@
+# eval/queries/edge_case_confidential_aggregate_small_cohort.yaml
+id: edge_case_confidential_aggregate_small_cohort
+query: >-
+  Break the infra spend down by cost centre -- I know a couple of the smaller teams only have a
+  handful of line items.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: finance.infra_spend_fy26q3
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 5
+  columns:
+  - cost_centre
+  # Deliberately tiny. R8/R9/R10 are RESTRICTED-only, so none of them fire
+  # here: this case exists to prove the floor is scoped to restricted data.
+  min_cell_count: 1
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- edge_case
+- arguably_allow
+- confidential_not_restricted
+- k_anonymity_is_R2_specific

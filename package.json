@@ -1,0 +1,16 @@
+{
+  "name": "n8n-nvidia-gtc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Host-side dependencies for the access gateway demo. The gateway's own decision logic (gateway/policy_engine.js) and the workflow builders under n8n/ have no dependencies at all, by design — they run inside an n8n Code node, which cannot require anything. This manifest exists for gateway/gateway_services.js, which runs on the host and can.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.2.0"
+  },
+  "scripts": {
+    "services": "node gateway/gateway_services.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

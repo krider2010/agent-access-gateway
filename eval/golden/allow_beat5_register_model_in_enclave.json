@@ -1,0 +1,10 @@
+{
+  "case_id": "allow_beat5_register_model_in_enclave",
+  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "engine_decision": "ALLOW",
+  "engine_matched_rule": "R0-IMPLICIT",
+  "redirects_offered": [],
+  "answer_source": "model",
+  "response_text": "The request to register the improved pedestrian model within the enclave is allowed because the resource's classification is confidential, which aligns with your role's access level, and the enclave is a trusted environment. Since no sanctioned alternative is provided, the action is permitted as-is.\n",
+  "redirect_chosen": null
+}

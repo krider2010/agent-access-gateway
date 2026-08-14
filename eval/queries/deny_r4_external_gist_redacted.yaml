@@ -1,0 +1,20 @@
+# eval/queries/deny_r4_external_gist_redacted.yaml
+id: deny_r4_external_gist_redacted
+query: >-
+  The redacted research set is fine to leave the company, right? Push it to a GitHub gist for a
+  collaborator.
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: fleet.night_clips_redacted_research
+  destination: external:gist.github.com
+  scope_mode: records
+  record_count: 12904
+  columns: []
+expect:
+  decision: DENY
+  rule: R4
+tags:
+- deny
+- R4
+- external_egress

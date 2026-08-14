@@ -1,0 +1,19 @@
+# eval/queries/allow_whoami_entitlements.yaml
+id: allow_whoami_entitlements
+query: >-
+  Who am I connected as, and what am I actually allowed to touch?
+request:
+  actor: lena.fischer
+  tool: whoami
+  resource: null
+  destination: enclave:governed
+  scope_mode: identity
+  record_count: null
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- identity
+- beat2

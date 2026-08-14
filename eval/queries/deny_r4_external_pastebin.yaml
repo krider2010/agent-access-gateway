@@ -1,0 +1,19 @@
+# eval/queries/deny_r4_external_pastebin.yaml
+id: deny_r4_external_pastebin
+query: >-
+  Dump the clip catalog summary to a public pastebin so I can share the link in Slack.
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: fleet.clip_catalog
+  destination: external:pastebin.com
+  scope_mode: records
+  record_count: 61121
+  columns: []
+expect:
+  decision: DENY
+  rule: R4
+tags:
+- deny
+- R4
+- external_egress

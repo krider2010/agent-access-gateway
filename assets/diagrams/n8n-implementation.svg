@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 860" width="1140" height="860" font-family="Inter, Helvetica Neue, Helvetica, Arial, sans-serif">
+  <rect width="1140" height="860" fill="#fbfbfd"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f3f46"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowSlate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="46" font-size="21" font-weight="600" fill="#18181b">The gateway as it is actually built in n8n</text>
+  <text x="40" y="70" font-size="14" fill="#52525b">Two workflows, twenty-four nodes. Node names match the deployed workflows exactly, so this can be checked against them.</text>
+
+  <!-- ===================== SANDBOX ===================== -->
+  <rect x="40" y="104" width="186" height="150" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="56" y="128" font-size="11" font-weight="700" fill="#6d28d9" letter-spacing="0.6">NEMOCLAW SANDBOX</text>
+  <rect x="58" y="142" width="150" height="52" rx="8" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="72" y="163" font-size="12.5" font-weight="600" fill="#18181b">Lena&#8217;s agent</text>
+  <text x="72" y="182" font-size="11.5" fill="#52525b">skill/scripts/client</text>
+  <text x="58" y="216" font-size="11" fill="#6d28d9">One permitted URL:</text>
+  <text x="58" y="232" font-size="11" fill="#6d28d9">POST/GET/DELETE on</text>
+  <text x="58" y="248" font-size="11" fill="#6d28d9">the front door path.</text>
+
+  <path d="M 226 178 L 268 178" stroke="#3f3f46" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="232" y="170" font-size="10.5" fill="#52525b">MCP</text>
+
+  <!-- ===================== FRONT DOOR WORKFLOW ===================== -->
+  <rect x="272" y="104" width="268" height="330" rx="12" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="288" y="128" font-size="11" font-weight="700" fill="#1e40af" letter-spacing="0.6">WORKFLOW 1 &#183; FRONT DOOR</text>
+  <text x="288" y="145" font-size="10.5" fill="#1e40af">the only one visible to MCP</text>
+
+  <rect x="288" y="158" width="240" height="46" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="302" y="177" font-size="12" font-weight="600" fill="#18181b">Access Gateway (MCP)</text>
+  <text x="302" y="194" font-size="9.5" fill="#64748b">mcpTrigger &#183; /mcp/kerbline&#8209;access&#8209;gateway</text>
+
+  <text x="288" y="224" font-size="10.5" fill="#1e40af">Nine toolWorkflow nodes, one per tool.</text>
+  <text x="288" y="239" font-size="10.5" fill="#1e40af">Each stamps its own tool name and</text>
+  <text x="288" y="254" font-size="10.5" fill="#1e40af">forwards the arguments untouched.</text>
+
+  <g font-size="9.5" fill="#18181b">
+    <rect x="288" y="266" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="296" y="282">whoami</text>
+    <rect x="406" y="266" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="414" y="282">list_datasets</text>
+    <rect x="288" y="296" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="296" y="312">describe_dataset</text>
+    <rect x="406" y="296" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="414" y="312">query_aggregate</text>
+    <rect x="288" y="326" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="296" y="342">read_records</text>
+    <rect x="406" y="326" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="414" y="342">request_export</text>
+    <rect x="288" y="356" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="296" y="372">publish_model</text>
+    <rect x="406" y="356" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="414" y="372">request_approval</text>
+    <rect x="288" y="386" width="112" height="24" rx="5" fill="#ffffff" stroke="#93c5fd"/><text x="296" y="402">start_training_job</text>
+  </g>
+  <text x="414" y="402" font-size="10" fill="#64748b" font-style="italic">all nine call</text>
+  <text x="414" y="415" font-size="10" fill="#64748b" font-style="italic">workflow 2</text>
+
+  <path d="M 540 269 L 566 269" stroke="#3f3f46" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ===================== DECIDE WORKFLOW ===================== -->
+  <rect x="570" y="104" width="300" height="570" rx="12" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="586" y="128" font-size="11" font-weight="700" fill="#1e40af" letter-spacing="0.6">WORKFLOW 2 &#183; DECIDE</text>
+  <text x="586" y="145" font-size="10.5" fill="#1e40af">hidden from MCP, so it cannot be called directly</text>
+
+  <rect x="586" y="156" width="268" height="34" rx="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="598" y="177" font-size="11.5" font-weight="600" fill="#18181b">Receive Gateway Request</text>
+
+  <rect x="586" y="198" width="268" height="60" rx="7" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <text x="598" y="216" font-size="11.5" font-weight="600" fill="#18181b">Fetch Access Policy</text>
+  <text x="598" y="232" font-size="11.5" font-weight="600" fill="#18181b">Fetch Dataset Catalog</text>
+  <text x="598" y="248" font-size="11.5" font-weight="600" fill="#18181b">Fetch Model Prompts</text>
+
+  <rect x="586" y="266" width="268" height="46" rx="7" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="598" y="285" font-size="11.5" font-weight="600" fill="#18181b">Evaluate Access Policy</text>
+  <text x="598" y="301" font-size="10.5" fill="#64748b">code &#183; policy_engine.js inlined at build</text>
+
+  <rect x="586" y="320" width="268" height="60" rx="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="598" y="339" font-size="11.5" font-weight="600" fill="#18181b">Explain The Verdict</text>
+  <text x="598" y="355" font-size="10.5" fill="#6d28d9">chainLlm, with a System row</text>
+  <text x="598" y="371" font-size="10.5" fill="#6d28d9">&#8627; Policy Brain (Nemotron) &#183; lmChatNvidia</text>
+
+  <rect x="586" y="388" width="268" height="34" rx="7" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="598" y="409" font-size="11.5" font-weight="600" fill="#18181b">Assemble Audit Record</text>
+
+  <rect x="586" y="430" width="268" height="34" rx="7" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <text x="598" y="451" font-size="11.5" font-weight="600" fill="#18181b">Append Audit Record</text>
+
+  <rect x="646" y="474" width="148" height="32" rx="16" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="700" y="495" font-size="11.5" font-weight="700" fill="#18181b" text-anchor="middle">Allowed?</text>
+
+  <!-- allow branch -->
+  <path d="M 660 506 L 660 530" stroke="#059669" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="592" y="524" font-size="10" font-weight="700" fill="#059669">ALLOW</text>
+  <rect x="586" y="534" width="132" height="28" rx="6" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+  <text x="596" y="552" font-size="10.5" font-weight="600" fill="#065f46">Shape The Enclave Call</text>
+  <path d="M 652 562 L 652 570" stroke="#059669" stroke-width="2"/>
+  <rect x="586" y="570" width="132" height="28" rx="6" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <text x="596" y="588" font-size="10.5" font-weight="600" fill="#18181b">Execute In The Enclave</text>
+  <path d="M 652 598 L 652 606" stroke="#059669" stroke-width="2"/>
+  <rect x="586" y="606" width="132" height="40" rx="6" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+  <text x="596" y="623" font-size="10.5" font-weight="600" fill="#065f46">Run The Sanctioned</text>
+  <text x="596" y="637" font-size="10.5" font-weight="600" fill="#065f46">Action</text>
+
+  <!-- deny branch -->
+  <path d="M 780 506 L 780 530" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="788" y="524" font-size="10" font-weight="700" fill="#dc2626">DENY</text>
+  <rect x="726" y="534" width="128" height="44" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="736" y="552" font-size="10.5" font-weight="600" fill="#991b1b">Return The Refusal</text>
+  <text x="736" y="568" font-size="10" fill="#991b1b">+ the sanctioned path</text>
+  <text x="726" y="598" font-size="9.5" fill="#991b1b">REQUIRE_APPROVAL leaves</text>
+  <text x="726" y="611" font-size="9.5" fill="#991b1b">here too, with a pending</text>
+  <text x="726" y="624" font-size="9.5" fill="#991b1b">record written.</text>
+
+  <text x="586" y="656" font-size="10" fill="#1e40af">One audit record per call, written before the branch.</text>
+
+  <!-- ===================== 4301 SERVICE ===================== -->
+  <rect x="272" y="700" width="598" height="130" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="288" y="724" font-size="11" font-weight="700" fill="#334155" letter-spacing="0.6">HOST SERVICE &#183; 127.0.0.1:4301</text>
+  <text x="288" y="741" font-size="10.5" fill="#334155">Loopback only, and named nowhere in the sandbox policy. The agent cannot reach it.</text>
+
+  <g font-size="10.5" fill="#18181b">
+    <rect x="288" y="754" width="104" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="296" y="771">GET /policy</text>
+    <rect x="400" y="754" width="104" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="408" y="771">GET /catalog</text>
+    <rect x="512" y="754" width="104" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="520" y="771">GET /prompts</text>
+    <rect x="624" y="754" width="104" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="632" y="771">POST /audit</text>
+    <rect x="736" y="754" width="126" height="26" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="744" y="771">POST /data/execute</text>
+  </g>
+  <text x="288" y="800" font-size="10.5" fill="#334155">The policy is fetched per request, not baked into the workflow. Stop this service and the</text>
+  <text x="288" y="815" font-size="10.5" fill="#334155">gateway fails rather than answering from memory, which is how that claim is tested.</text>
+
+  <!-- service arrows -->
+  <path d="M 586 228 L 250 228 L 250 760 L 286 760" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrowSlate)"/>
+  <path d="M 720 464 L 720 700" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrowSlate)"/>
+  <path d="M 700 592 L 790 592 L 790 700" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrowSlate)"/>
+
+  <!-- ===================== LEGEND ===================== -->
+  <rect x="900" y="104" width="200" height="216" rx="10" fill="#ffffff" stroke="#d4d4d8"/>
+  <text x="916" y="128" font-size="11" font-weight="700" fill="#3f3f46" letter-spacing="0.5">NODE KINDS</text>
+  <rect x="916" y="140" width="16" height="14" rx="3" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="940" y="152" font-size="10.5" fill="#52525b">code</text>
+  <rect x="916" y="162" width="16" height="14" rx="3" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <text x="940" y="174" font-size="10.5" fill="#52525b">httpRequest, leaves n8n</text>
+  <rect x="916" y="184" width="16" height="14" rx="3" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="940" y="196" font-size="10.5" fill="#52525b">the model</text>
+  <rect x="916" y="206" width="16" height="14" rx="3" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="940" y="218" font-size="10.5" fill="#52525b">trigger or branch</text>
+
+  <text x="916" y="248" font-size="11" font-weight="700" fill="#3f3f46" letter-spacing="0.5">WHY TWO, NOT TEN</text>
+  <text x="916" y="266" font-size="10.5" fill="#52525b">Under an MCP trigger n8n</text>
+  <text x="916" y="280" font-size="10.5" fill="#52525b">hands a tool call&#8217;s whole</text>
+  <text x="916" y="294" font-size="10.5" fill="#52525b">argument object to one field,</text>
+  <text x="916" y="308" font-size="10.5" fill="#52525b">so per-tool wrappers had</text>
+  <text x="916" y="322" font-size="10.5" fill="#52525b">nothing left to do.</text>
+
+  <rect x="900" y="340" width="200" height="180" rx="10" fill="#ffffff" stroke="#d4d4d8"/>
+  <text x="916" y="364" font-size="11" font-weight="700" fill="#3f3f46" letter-spacing="0.5">THE MODEL&#8217;S LIMITS</text>
+  <text x="916" y="382" font-size="10.5" fill="#52525b">It is downstream of the</text>
+  <text x="916" y="396" font-size="10.5" fill="#52525b">decision, so it cannot change</text>
+  <text x="916" y="410" font-size="10.5" fill="#52525b">it. It has no tools and no</text>
+  <text x="916" y="424" font-size="10.5" fill="#52525b">loop. It does not choose the</text>
+  <text x="916" y="438" font-size="10.5" fill="#52525b">alternative either &#8212; the</text>
+  <text x="916" y="452" font-size="10.5" fill="#52525b">engine picks it from the</text>
+  <text x="916" y="466" font-size="10.5" fill="#52525b">matched rule&#8217;s own list.</text>
+  <text x="916" y="488" font-size="10.5" fill="#52525b">If its answer is unusable, the</text>
+  <text x="916" y="502" font-size="10.5" fill="#52525b">reply is composed from policy</text>
+  <text x="916" y="516" font-size="10.5" fill="#52525b">data with no model involved.</text>
+</svg>

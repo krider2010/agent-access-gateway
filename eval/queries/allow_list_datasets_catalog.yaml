@@ -1,0 +1,20 @@
+# eval/queries/allow_list_datasets_catalog.yaml
+id: allow_list_datasets_catalog
+query: >-
+  What datasets can I even see from here?
+request:
+  actor: lena.fischer
+  tool: list_datasets
+  resource: null
+  destination: enclave:governed
+  scope_mode: catalog
+  record_count: null
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- catalog
+- beat2
+- real_work

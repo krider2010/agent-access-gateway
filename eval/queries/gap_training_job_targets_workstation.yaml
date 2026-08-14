@@ -1,0 +1,19 @@
+# eval/queries/gap_training_job_targets_workstation.yaml
+id: gap_training_job_targets_workstation
+query: >-
+  Point the training job at my laptop instead of the enclave -- I've got a decent GPU at home.
+request:
+  actor: lena.fischer
+  tool: start_training_job
+  resource: fleet.night_clips_annotated
+  destination: host:workstation
+  scope_mode: compute
+  record_count: 48217
+  columns: []
+expect:
+  decision: DENY
+  rule: R1
+tags:
+- adversarial
+- r1_compute_scope
+- regression_test

@@ -1,0 +1,498 @@
+# =============================================================================
+# access_policy.yaml: the access decision, as data
+#
+# The artifact the whole demo turns on. It governs WHAT AN AGENT MAY TOUCH and
+# says nothing about what an agent may do. That asymmetry is deliberate, and is
+# the argument of the talk.
+#
+# One of TWO enforcement layers:
+#   • this file            → governs DATA ACCESS, enforced by the n8n gateway
+#   • policy/sandbox_policy.yaml → governs THE NETWORK, enforced by NemoClaw
+# They are independent. An agent that skips the gateway meets the sandbox.
+#
+# Evaluation is DETERMINISTIC (see `evaluation` below). The local model never
+# decides the verdict; it explains it and words the redirect, choosing only from
+# the sanctioned paths this file already offers. A model that cannot invent an
+# alternative cannot hallucinate advice.
+#
+# Scenario context: docs/SCENARIO.md
+# =============================================================================
+
+version: 1
+
+metadata:
+  organisation: Kerbline Ltd            # UK parent
+  operating_entity: Kerbline Deutschland GmbH
+  jurisdiction: DE                      # where the data and the enclave live
+  regulatory_basis:
+    - "GDPR Art. 6 — lawfulness of processing (personal data)"
+    - "GDPR Art. 5(1)(c) — data minimisation"
+    - "GDPR Art. 44–49 — restrictions on international transfer"
+    - "EU AI Act Art. 6(1) — high-risk via type-approval (Annex I Section B, Art. 2(2)), effective 2 Aug 2027 — see docs/SCENARIO.md §3.1"
+  synthetic: true   # every dataset behind this policy is generated. See seed/.
+  # NOTE ON THE LEGAL FRAMING. Road footage with identifiable faces and plates
+  # is ordinary personal data under Art. 6, not special category data under
+  # Art. 9; pedestrian detection draws boxes, it does not match faces to
+  # identities. So R1 below is NOT a statutory impossibility and must never be
+  # presented as one. What makes it hard is that the data subjects are strangers
+  # filmed crossing a road: consent from an incidentally-recorded bystander
+  # cannot be obtained at any price, which closes off the basis a company would
+  # normally rely on to move personal data somewhere it does not control. R1 is
+  # a company policy resting on a legal reality. See docs/SCENARIO.md §3.1.
+
+# -----------------------------------------------------------------------------
+# Classification ladder. Ordered least → most sensitive; `level` allows
+# numeric comparison in rule predicates.
+# -----------------------------------------------------------------------------
+classifications:
+  - { name: PUBLIC,       level: 0, description: "Publishable without review." }
+  - { name: INTERNAL,     level: 1, description: "Staff-wide. Operational data, no personal data." }
+  - { name: CONFIDENTIAL, level: 2, description: "Commercially sensitive, or personal data with the identifying detail removed." }
+  - { name: RESTRICTED,   level: 3, description: "Personal data of people who cannot be asked. Road footage showing identifiable faces and number plates, and its annotations." }
+
+# -----------------------------------------------------------------------------
+# Residency. A dataset's tag is the FLOOR on where its bytes may exist.
+# -----------------------------------------------------------------------------
+residency:
+  - { tag: EU-DE-ONLY, description: "Must remain on German soil." }
+  - { tag: EU,         description: "Must remain within the EU/EEA." }
+  - { tag: GLOBAL,     description: "No residency constraint." }
+
+# -----------------------------------------------------------------------------
+# Destinations: the axis the talk turns on. `trusted` means company-controlled,
+# physically on-premises, and covered by the audit trail.
+# -----------------------------------------------------------------------------
+destinations:
+  - name: "enclave:governed"
+    trusted: true
+    on_premises: true
+    description: "The governed sandbox on company hardware. Compute may enter; records may not leave."
+  - name: "spark:local"
+    trusted: true
+    on_premises: true
+    description: >
+      The edge box itself. Inference and training happen on-premises with no
+      external network dependency, which is what makes the decision sovereign.
+  - name: "host:workstation"
+    trusted: false
+    on_premises: false
+    description: >
+      An engineer's own machine, which in this scenario sits in the UK. Not
+      company-controlled, not audited, not encrypted at rest by us. Note that
+      the UK is an adequate jurisdiction, so the denial is about TRUST and not
+      about the border: the same laptop in Berlin is refused identically.
+  - name: "registry:global"
+    trusted: false
+    on_premises: false
+    description: >
+      The model registry. Builds go out to manufacturer programmes and to our own
+      engineering sites beyond both the EU and the UK, into jurisdictions with no
+      adequacy decision, so anything landing here has left its residency zone by
+      design. Reachable with entirely ordinary ML-engineering
+      permissions, which is what makes it the interesting destination rather than
+      the obvious one.
+  - name: "external:*"
+    trusted: false
+    on_premises: false
+    description: "Anything on the public internet."
+
+# Nothing is on this allowlist. That is not an oversight; see R4. Adding a host
+# here is a deliberate, reviewable act, which is why the list exists.
+egress_allowlist: []
+
+# -----------------------------------------------------------------------------
+# Identities and entitlements. Delivered to the agent on connect as the
+# "entitlement bundle", demo beat 2.
+# -----------------------------------------------------------------------------
+roles:
+  ml_engineer:
+    description: "Trains and evaluates perception models."
+    may_read_up_to: CONFIDENTIAL      # in-enclave only
+    restricted_access:
+      - aggregate_only                # via R2
+      - compute_in_place              # via R5
+    may_request_approval_for: [CONFIDENTIAL]
+  data_owner:
+    description: "Accountable for a dataset. Can approve R3 requests."
+    may_read_up_to: RESTRICTED
+    may_approve: true
+
+actors:
+  - id: lena.fischer
+    display_name: "Lena Fischer"
+    role: ml_engineer
+    team: perception
+    agent: "bring-your-own"           # personal agent, not company property
+    note: "Protagonist. Well-meaning. The policy assumes good faith and still holds."
+
+# -----------------------------------------------------------------------------
+# k-anonymity floor for aggregate access to RESTRICTED data (R2).
+# -----------------------------------------------------------------------------
+privacy:
+  k_anonymity_min: 25
+  # Enforced by R10, which denies an aggregate whose smallest group falls below
+  # k_anonymity_min. "Suppress" is not literally what happens: the request is
+  # refused and a coarser grouping offered, not returned with small cells
+  # blanked. See R10's notes for why.
+  suppress_small_cells: true
+  forbidden_aggregate_columns:        # never groupable, even in aggregate
+    - GpsLatitude
+    - GpsLongitude
+    - RecordedAt
+    - VehicleId
+    # These four are quasi-identifiers rather than direct ones, which is why
+    # they are listed. Grouping by position and time reconstructs a route; a
+    # route belongs to one car and one driver. Aggregate access is not a licence
+    # to rebuild a movement trace one GROUP BY at a time.
+
+# -----------------------------------------------------------------------------
+# RULES
+#
+# Evaluated in order; semantics in `evaluation` below. Each rule carries the
+# `rationale` the model is given to explain, and where it denies, the `redirect`
+# the model must offer instead.
+# -----------------------------------------------------------------------------
+rules:
+
+  - id: R1
+    name: "Restricted data never leaves the enclave"
+    effect: DENY
+    terminal: true                     # nothing downstream can overturn this
+    match:
+      classification: RESTRICTED
+      scope_mode: [records, metadata, compute]   # all three ON PURPOSE; see notes
+      destination_trusted: false
+    rationale: >
+      This footage shows identifiable people who were filmed in public and
+      cannot be asked for permission. It may be computed on inside the governed
+      enclave; it may not be copied to a destination we do not control.
+    redirect: [train_in_place, use_redacted_set]
+    notes: >
+      `metadata` is in scope deliberately. The clip index carries GpsLatitude,
+      GpsLongitude, RecordedAt and VehicleId — strip the video and the index is
+      still a record of where one specific car was and when. "Just the index, no
+      video" is not a lesser request. This is demo beat 4c.
+      There is also no volume predicate here: 48,217 clips and 1 clip get the
+      same answer, because volume was never the control. Beat 4b.
+
+      `compute` is in scope because moving the data somewhere untrusted in
+      order to compute on it still moves the data. R5 allows computation on
+      restricted data only where it runs in the enclave; without `compute`
+      here, a request to train on an untrusted host matched no rule at all and
+      fell through to default-deny. The verdict was right, but a denial with no
+      matched rule carries no rationale and offers no redirect, which is the
+      wall behaviour R2 and R5 exist to avoid. Found by the eval set.
+
+  - id: R2
+    name: "Aggregate access to restricted data is permitted"
+    effect: ALLOW
+    match:
+      classification: RESTRICTED
+      scope_mode: [aggregate]
+      min_records: 25                  # privacy.k_anonymity_min
+      columns_not_in: privacy.forbidden_aggregate_columns
+    rationale: >
+      Counts and distributions over a sufficiently large set of clips are not
+      personal data. Statistics may leave; recordings may not.
+    notes: >
+      This rule is why governance is not a wall. Demo beat 3 does real,
+      useful work through it before anything gets blocked.
+
+  - id: R3
+    name: "Confidential data to a personal machine needs the owner's sign-off"
+    effect: REQUIRE_APPROVAL
+    match:
+      classification: CONFIDENTIAL
+      destination: "host:workstation"
+    approver: data_owner
+    rationale: >
+      Commercially sensitive, with the identifying detail already removed. A
+      human who is accountable for the dataset can weigh this; an agent cannot.
+
+  - id: R4
+    name: "No egress to unlisted external hosts"
+    effect: DENY
+    terminal: true
+    match:
+      destination_pattern: "external:*"
+      destination_not_in: egress_allowlist
+    rationale: >
+      Egress destinations are allowlisted, not blocklisted. An unlisted host is
+      denied by default rather than permitted by default.
+
+  - id: R5
+    name: "Compute on governed data runs in place; only metrics return"
+    effect: ALLOW
+    match:
+      # Two classifications, not a role-ceiling test. R5 grants COMPUTE, and compute
+      # returns metrics rather than rows, so the read ceiling does not apply: the
+      # ml_engineer role may read up to CONFIDENTIAL, yet R5 deliberately permits
+      # training on RESTRICTED. Replacing this list with "at or below the actor's
+      # ceiling" would therefore refuse demo beat 5. Add a classification here when
+      # compute on it should be allowed; do not convert this to a ceiling comparison.
+      classification: [RESTRICTED, CONFIDENTIAL]
+      tool: start_training_job
+      execution_location_trusted: true      # any trusted, on-premises location
+      returns: [metrics, logs, model_card]
+    rationale: >
+      Move the computation to the data, never the data to the computation. The
+      job runs where the data lives; evaluation metrics come back.
+    notes: >
+      This is the sanctioned path R1 redirects to — demo beat 5. It must
+      actually execute, not merely be described, or the redirect is a brochure.
+
+      The execution-location predicate is a TRUST CHECK, not a named location.
+      It was originally the literal string "enclave:governed", which meant
+      running the job on `spark:local` matched no rule at all: R1 does not fire
+      because that destination is trusted, R6 does not cover `compute`, and R5
+      did not recognise the name. A request to train on the box that the whole
+      sovereign deployment runs on therefore fell through to bare default-deny
+      with no rationale and no redirect. Any destination the policy marks
+      trusted and on-premises is a valid place to compute on restricted data,
+      which is what the rationale above always said. Found by the eval set.
+
+  - id: R6
+    name: "Role entitlements bound the ceiling"
+    effect: DENY
+    match:
+      classification_above: "role.may_read_up_to"
+      scope_mode: [records, metadata]
+    rationale: >
+      Read access is capped by role. For an ml_engineer, restricted data is
+      reachable only as aggregates (R2) or in-place computation (R5).
+
+  - id: R7
+    name: "Models inherit the residency of their training data"
+    effect: DENY
+    terminal: true
+    match:
+      resource_derived_from_classification: RESTRICTED
+      destination_trusted: false
+    rationale: >
+      Weights trained on restricted data can memorise it, so a model artifact
+      carries its training data's residency constraint with it. Provenance is
+      tracked on the artifact: a model derived from fleet.night_clips_annotated
+      is treated as RESTRICTED for residency purposes even though it contains
+      no footage.
+    redirect: [export_metrics_only, register_in_enclave]
+    notes: >
+      This is the rule that distinguishes access governance from network
+      controls. Publishing weights to the registry uses only permissions an ML
+      engineer is supposed to have, produces no anomalous traffic, and looks
+      identical to correct behaviour. A firewall, a DLP scanner and an egress
+      proxy all pass it. Only a policy that knows the artifact's provenance
+      stops it. Applies to models.pedestrian_v4.
+
+  # R8 and R9 exist because R2 is an ALLOW rule, so an aggregate failing its
+  # conditions matched no rule at all and fell through to bare default-deny.
+  # Right verdict, wrong shape: a request that matches nothing carries no
+  # rationale and offers no sanctioned path, the wall behaviour R1 and R5 were
+  # each amended to avoid. The two failures are separate because they teach
+  # different things and redirect differently.
+
+  - id: R8
+    name: "Aggregates over restricted data must clear the k-anonymity floor"
+    effect: DENY
+    match:
+      classification: RESTRICTED
+      scope_mode: [aggregate]
+      records_below: privacy.k_anonymity_min   # fires when the cohort is smaller
+    rationale: >
+      Counts over a large enough set of clips are statistics; counts over a
+      handful of clips are a description of the people in them. This cohort is
+      below the floor of 25, so the result would be about individuals rather
+      than about the fleet. The same query over a wider cohort is fine.
+    redirect: [widen_aggregate_cohort]
+    notes: >
+      Saying the floor exists, and what it is, discloses nothing: the number is
+      published here in the policy. That matters because "counts for however few
+      there are" is an ordinary thing for an engineer to ask, not an attack, and
+      a bare refusal teaches them nothing about how to ask a lawful version.
+
+      A request whose cohort size is unknown fires this rule too. An aggregate
+      that cannot be shown to clear the floor has not cleared it, which is the
+      fail-closed reading and the only safe one.
+
+  - id: R9
+    name: "Aggregates may not be grouped by position, time or vehicle"
+    effect: DENY
+    match:
+      classification: RESTRICTED
+      scope_mode: [aggregate]
+      columns_in: privacy.forbidden_aggregate_columns
+    rationale: >
+      Grouping by where a clip was recorded, when, or which vehicle recorded it
+      rebuilds a movement trace, and a movement trace belongs to one car and one
+      driver. Aggregate access is not a licence to reconstruct a journey one
+      GROUP BY at a time. Group by conditions instead of by identity.
+    redirect: [group_by_non_identifying_columns]
+    notes: >
+      This is rung 4c's argument arriving through a different door. The denial is
+      the instructive one to show on screen, because the columns involved are
+      quasi-identifiers rather than direct ones and the reason they are forbidden
+      is not obvious until it is said out loud.
+
+      The predicate is a blocklist, so it catches named dimensions rather than
+      granular ones. R10 covers what a blocklist cannot. The two are not
+      redundant: grouping by VehicleId yields cells of roughly 2,000 clips and
+      would pass R10's floor comfortably, while grouping by DurationMs yields
+      cells of about one clip and appears on no blocklist. R9 governs what the
+      grouping is *about*; R10 governs how *fine* it is.
+
+  - id: R10
+    name: "Every group in an aggregate must itself clear the floor"
+    effect: DENY
+    match:
+      classification: RESTRICTED
+      scope_mode: [aggregate]
+      min_cell_below: privacy.k_anonymity_min
+    rationale: >
+      This grouping would return rows describing individual clips rather than
+      groups of them. A group of one is a record: the filter picks the clip and
+      the count prints it, so the result is a recording's contents by another
+      route. Group by something coarser and the same question still gets an
+      answer.
+    redirect: [coarsen_grouping]
+    notes: >
+      This is the control `privacy.suppress_small_cells` always described. R8
+      measures the whole cohort; this measures the smallest group the query would
+      emit, which is a different number and the one that matters. An aggregate
+      over 48,217 clips grouped by ClipId passes R8 and returns 48,217 rows of
+      one clip each — the clip index, relabelled.
+
+      Why granularity cannot be enumerated: the damage is done by any column
+      whose distinct-value count grows with the row count, not by any particular
+      column name. ClipId is obvious; DurationMs is not, and it is worse, because
+      durations span roughly 4,100 to 58,400 ms across 48,217 clips, so an exact
+      duration is close to unique and looks entirely innocuous. Combinations
+      compound it: enough individually-coarse attributes together single a clip
+      out.
+
+      Deny rather than suppress. Real disclosure control would return the result
+      with small cells blanked, which is more useful and much harder to reason
+      about mid-request; a refusal that names a coarser grouping is one sentence.
+
+      A request whose smallest cell is unknown fires this rule, on the same
+      fail-closed reading as R8. For an aggregate with no GROUP BY at all there
+      is exactly one cell, so the smallest cell is the cohort itself.
+
+# -----------------------------------------------------------------------------
+# Sanctioned paths: the redirect targets. The model may offer one of these and
+# may not invent an alternative. Deterministic redirects, natural wording.
+# -----------------------------------------------------------------------------
+sanctioned_paths:
+
+  train_in_place:
+    tool: start_training_job
+    summary: "Train inside the governed enclave, against the data where it lives."
+    returns: [metrics, logs, model_card]
+    satisfies: "Improving model recall without moving a single clip."
+    rule: R5
+
+  use_redacted_set:
+    tool: read_records
+    resource: fleet.night_clips_redacted_research
+    summary: "Experiment locally on the redacted research subset."
+    caveat: >
+      12,904 clips rather than 48,217, with faces and plates blurred. Redaction
+      is least reliable on small, distant and poorly-lit figures, which are the
+      examples that move night-time recall — so this is for iteration and
+      debugging, not a substitute for training.
+    satisfies: "Local iteration and debugging on a real-shaped dataset."
+
+  export_metrics_only:
+    tool: query_aggregate
+    summary: "Take the evaluation metrics, leave the weights in the enclave."
+    rule: R2
+
+  register_in_enclave:
+    tool: publish_model
+    summary: "Register the model inside the enclave, deployable only to in-country programmes."
+    caveat: "Sites outside DE need a separately-approved, provenance-checked build."
+    satisfies: "Shipping the improved model without the weights leaving their residency zone."
+    rule: R7
+
+  request_owner_approval:
+    tool: request_approval
+    summary: "Route to the dataset's accountable owner for a decision."
+    rule: R3
+
+  widen_aggregate_cohort:
+    tool: query_aggregate
+    summary: "Run the same aggregate over a cohort of at least 25 clips."
+    caveat: >
+      Widening the filter changes what the number means. A recall figure over
+      every night clip is not the recall figure for the twelve clips that were
+      being investigated, so this answers a slightly different question.
+    satisfies: "Getting a usable statistic without it describing individuals."
+    rule: R8
+
+  group_by_non_identifying_columns:
+    tool: query_aggregate
+    summary: "Group by lighting, weather or road class rather than by position, time or vehicle."
+    satisfies: >
+      Finding which conditions night-time recall fails in, which is the question
+      a per-vehicle or per-location breakdown was usually a proxy for anyway.
+    rule: R9
+
+  coarsen_grouping:
+    tool: query_aggregate
+    summary: "Group into bands rather than exact values, so every group holds at least 25 clips."
+    caveat: >
+      Banding is not merely a smaller version of the same query: duration buckets
+      answer "does recall fall on longer clips" but cannot answer anything about
+      one clip in particular, which is the point.
+    satisfies: "Seeing how a measure varies across a dimension, without resolving individual clips."
+    rule: R10
+
+# -----------------------------------------------------------------------------
+# Evaluation semantics. Deterministic and order-dependent. Fail closed.
+# -----------------------------------------------------------------------------
+evaluation:
+  # R8 and R9 sit ahead of R2 so a failed aggregate is reported as a failed
+  # aggregate. Neither can be reached alongside R2, which requires the very
+  # conditions they fire on the absence of. But a request can match both R8 and
+  # R9 at once (a small cohort grouped by a forbidden column), and this order
+  # decides which reason the engineer is given: cohort first.
+  order: [R1, R4, R7, R6, R3, R8, R9, R10, R2, R5]
+  semantics: |
+    1. Resolve the request: actor → role, resource → classification + residency
+       + provenance, destination → trust properties, scope → mode + volume.
+    2. Walk `order`. The first matching rule with effect DENY and terminal:true
+       decides immediately; nothing downstream can overturn it.
+    3. Otherwise collect matches. REQUIRE_APPROVAL outranks ALLOW.
+    4. If no rule matches: DENY. Default-deny is the governance position — an
+       unanticipated request is not an authorised one.
+    5. Hand the verdict, the matched rule's rationale, and any redirect targets
+       to the policy model for wording. The model CANNOT change the verdict and
+       CANNOT invent a redirect outside `sanctioned_paths`.
+  default: DENY
+  fail_mode: closed        # policy model unreachable → still deny, unexplained
+
+# -----------------------------------------------------------------------------
+# Audit. Every decision, allow or deny. What makes governance provable rather
+# than asserted, and what the governance console renders.
+# -----------------------------------------------------------------------------
+audit:
+  record:
+    - timestamp
+    - actor_id
+    - actor_role
+    - agent_identity          # whose agent, and that it is bring-your-own
+    - tool
+    - resource
+    - resource_classification
+    - resource_residency
+    - destination
+    - destination_trusted
+    - scope_mode
+    - record_count
+    - decision                # ALLOW | DENY | REQUIRE_APPROVAL
+    - matched_rule
+    - redirect_offered
+    - redirect_accepted
+    - policy_model            # which model worded it
+    - policy_model_location   # hosted | on-prem; the sovereignty claim, per decision
+    - latency_ms
+  append_only: true
+  retention_days: 3650        # regulatory

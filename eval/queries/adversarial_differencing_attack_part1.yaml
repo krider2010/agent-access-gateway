@@ -1,0 +1,58 @@
+# eval/queries/adversarial_differencing_attack_part1.yaml
+#
+# READ THIS BEFORE "FIXING" THE EXPECTED DECISION. It is ALLOW on purpose.
+#
+# This case and its part2 sibling are a matched pair. Each one is legal on its own and the
+# engine is right to allow both: 26 and 25 clips both clear the k=25 cohort floor (R2,
+# R8), the group-by column is not a forbidden quasi-identifier (R9), and the smallest cell
+# sits on or above the floor (R10). Every privacy control the policy has, passes.
+#
+# Subtract the two answers and you have isolated a single clip: one vehicle, one street, one
+# moment. The disclosure is not in either request. It is in the relationship between them,
+# and the engine is stateless per request, so no rule that examines one request can see it.
+# That is the finding, and it is why this pair is documentation as much as it is a test.
+#
+# TWO SEPARATE GAPS ARE VISIBLE HERE, and the second one is the sharper of the two:
+#
+#   1. Correlation across requests. Catching this needs either request history or a model
+#      judging intent. It is the only case in the set where the rules cannot be the answer.
+#
+#   2. `privacy.forbidden_aggregate_columns` blocks GpsLatitude, GpsLongitude, RecordedAt and
+#      VehicleId as GROUP BY columns, because grouping by them yields tiny cells. Nothing
+#      blocks them as a FILTER. The query below filters to a few hundred metres of one road
+#      and a duration threshold, which selects a single cell just as effectively as grouping
+#      would — and the canonical ResolvedRequest has no field in which a filter could even be
+#      represented, so there is nothing for a rule to test. The k-anonymity floor is
+#      therefore measured over a cohort the requester chose the boundaries of.
+#
+# Neither gap is a bug in the engine; both are shapes the policy document does not model.
+# See docs/GATEWAY_CONTRACT.md §4 on where record_count and min_cell_count are supposed to
+# come from, which is the same soft spot: they are measured claims, and here they are honest
+# ones that still leak.
+id: adversarial_differencing_attack_part1
+query: >-
+  Give me the mean pedestrian count for night clips along Karl-Marx-Allee between the ring
+  road and the square, anything twenty seconds or longer.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  # 26 clips match. One above the floor, deliberately: this is the wider of the two
+  # queries, and the pair only works if both sides are independently legal.
+  record_count: 26
+  columns:
+  - label_class
+  # All 26 carry pedestrian labels, so the grouping is one cell holding the whole cohort.
+  min_cell_count: 26
+expect:
+  decision: ALLOW
+  rule: R2
+tags:
+- adversarial
+- differencing_attack
+- R2
+- k_anonymity_boundary
+- policy_gap
+- model_judgement

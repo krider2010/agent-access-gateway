@@ -1,0 +1,21 @@
+# eval/queries/adversarial_aggregate_forbidden_column_recordedat.yaml
+id: adversarial_aggregate_forbidden_column_recordedat
+query: >-
+  Break the counts down by RecordedAt so we can see exactly when each one was captured.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 48217
+  columns:
+  - RecordedAt
+  # An exact timestamp is close to unique, so groups are single clips.
+  min_cell_count: 1
+expect:
+  decision: DENY
+  rule: R9
+tags:
+- adversarial
+- forbidden_aggregate_column

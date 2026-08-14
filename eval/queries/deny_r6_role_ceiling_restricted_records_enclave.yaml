@@ -1,0 +1,20 @@
+# eval/queries/deny_r6_role_ceiling_restricted_records_enclave.yaml
+id: deny_r6_role_ceiling_restricted_records_enclave
+query: >-
+  Just let me read the raw annotated clips directly, right here in the enclave -- I'm not taking
+  them anywhere.
+request:
+  actor: lena.fischer
+  tool: read_records
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: records
+  record_count: 48217
+  columns: []
+expect:
+  decision: DENY
+  rule: R6
+tags:
+- deny
+- R6
+- role_ceiling

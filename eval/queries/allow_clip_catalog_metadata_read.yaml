@@ -1,0 +1,23 @@
+# eval/queries/allow_clip_catalog_metadata_read.yaml
+id: allow_clip_catalog_metadata_read
+query: >-
+  Give me the clip catalog rows from the last week so I can see label counts.
+request:
+  actor: lena.fischer
+  tool: read_records
+  resource: fleet.clip_catalog
+  destination: enclave:governed
+  scope_mode: records
+  record_count: 1400
+  columns:
+  - LightingCondition
+  - RoadClass
+  - LabelCount
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- beat3
+- real_work
+- internal_data

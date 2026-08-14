@@ -1,0 +1,10 @@
+{
+  "case_id": "allow_cluster_telemetry_read",
+  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "engine_decision": "ALLOW",
+  "engine_matched_rule": "R0-IMPLICIT",
+  "redirects_offered": [],
+  "answer_source": "model",
+  "response_text": "The request is allowed because the resource is classified as internal and the destination enclave is trusted, which falls under the system's fallback rules rather than a specific policy. Since no sanctioned alternative was provided, the request cannot be modified or redirected.\n",
+  "redirect_chosen": null
+}

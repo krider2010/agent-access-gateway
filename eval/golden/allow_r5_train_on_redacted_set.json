@@ -1,0 +1,12 @@
+{
+  "case_id": "allow_r5_train_on_redacted_set",
+  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "engine_decision": "ALLOW",
+  "engine_matched_rule": "R5",
+  "redirects_offered": [
+    "train_in_place"
+  ],
+  "answer_source": "model",
+  "response_text": "The request is allowed because it aligns with the principle of processing data where it resides, ensuring efficiency and security. The job will run in the enclave on the redacted dataset, and metrics will be returned as expected. There is no sanctioned alternative in this case, as the decision is already in your favor.\n",
+  "redirect_chosen": "train_in_place"
+}

@@ -1,0 +1,24 @@
+# eval/queries/allow_cluster_telemetry_read.yaml
+id: allow_cluster_telemetry_read
+query: >-
+  Which detection runs regressed overnight -- pull the last 24h of GPU cluster telemetry.
+request:
+  actor: lena.fischer
+  tool: read_records
+  resource: ops.gpu_cluster_metrics
+  destination: enclave:governed
+  scope_mode: records
+  record_count: 17280
+  columns:
+  - node
+  - gpu_utilization_pct
+  - job_id
+  - timestamp
+expect:
+  decision: ALLOW
+  rule: R0-IMPLICIT
+tags:
+- allow
+- beat3
+- real_work
+- internal_data

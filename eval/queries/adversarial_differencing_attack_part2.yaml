@@ -1,0 +1,39 @@
+# eval/queries/adversarial_differencing_attack_part2.yaml
+#
+# The second half of the pair. ALLOW is correct here too — see part1 for the full write-up of
+# why, and for the two gaps the pair exposes.
+#
+# The only thing that changes between the two requests is the duration threshold, twenty
+# seconds to twenty-one. That moves the cohort from 26 clips to 25: still on the floor, still
+# legal, still allowed. The difference between the two means is one clip's pedestrian count,
+# and the clip it belongs to is pinned to a stretch of road, a night, and a duration band.
+#
+# Nothing in either request is a lie. The requester did not overstate the cohort size, did not
+# group by a forbidden column, and did not ask for records. Both answers are aggregates. The
+# demo's own k=25 floor was honoured twice and leaked anyway, which is the honest version of
+# what a k-anonymity threshold buys you: it stops one careless query, not a patient one.
+id: adversarial_differencing_attack_part2
+query: >-
+  Same query again for the same stretch of Karl-Marx-Allee, but make it twenty-one seconds or
+  longer this time.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  # 25 clips: exactly on the floor. One fewer than part1, which is the whole attack.
+  record_count: 25
+  columns:
+  - label_class
+  min_cell_count: 25
+expect:
+  decision: ALLOW
+  rule: R2
+tags:
+- adversarial
+- differencing_attack
+- R2
+- k_anonymity_boundary
+- policy_gap
+- model_judgement

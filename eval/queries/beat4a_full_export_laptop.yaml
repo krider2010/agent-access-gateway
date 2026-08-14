@@ -1,0 +1,20 @@
+# eval/queries/beat4a_full_export_laptop.yaml
+id: beat4a_full_export_laptop
+query: >-
+  Copy the annotated night clips to my laptop, I'll fine-tune over the weekend.
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: fleet.night_clips_annotated
+  destination: host:workstation
+  scope_mode: records
+  record_count: 48217
+  columns: []
+expect:
+  decision: DENY
+  rule: R1
+tags:
+- deny
+- beat4
+- beat4a
+- R1

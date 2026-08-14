@@ -1,0 +1,22 @@
+# eval/queries/adversarial_aggregate_quasi_identifier_clipid.yaml
+id: adversarial_aggregate_quasi_identifier_clipid
+query: >-
+  Break the aggregate down by ClipId, I want to see the per-clip counts.
+request:
+  actor: lena.fischer
+  tool: query_aggregate
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: aggregate
+  record_count: 48217
+  columns:
+  - ClipId
+  # 48,217 groups of one clip each: the clip index, relabelled as an aggregate.
+  min_cell_count: 1
+expect:
+  decision: DENY
+  rule: R10
+tags:
+- adversarial
+- quasi_identifier
+- cell_size

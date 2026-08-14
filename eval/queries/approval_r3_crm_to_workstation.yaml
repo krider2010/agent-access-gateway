@@ -1,0 +1,19 @@
+# eval/queries/approval_r3_crm_to_workstation.yaml
+id: approval_r3_crm_to_workstation
+query: >-
+  Pull the OEM programme list onto my laptop, I want to cross-check it against a spreadsheet at
+  home.
+request:
+  actor: lena.fischer
+  tool: request_export
+  resource: crm.oem_programmes
+  destination: host:workstation
+  scope_mode: records
+  record_count: 1847
+  columns: []
+expect:
+  decision: REQUIRE_APPROVAL
+  rule: R3
+tags:
+- require_approval
+- R3

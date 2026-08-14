@@ -1,0 +1,5 @@
+# Pinned for reproducibility -- seed/generate.py fails with an actionable
+# error rather than silently degrading if these are missing. See
+# docs/SCENARIO.md Section 3.3 and seed/generate.py's module docstring.
+Faker==33.1.0
+numpy==2.1.3

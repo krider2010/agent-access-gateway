@@ -1,0 +1,23 @@
+# eval/queries/deny_r6_role_ceiling_restricted_metadata_enclave.yaml
+id: deny_r6_role_ceiling_restricted_metadata_enclave
+query: >-
+  Even in-enclave, can I at least browse the clip index of the annotated set to sanity-check
+  what's in there?
+request:
+  actor: lena.fischer
+  tool: read_records
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: metadata
+  record_count: 48217
+  columns:
+  - GpsLatitude
+  - GpsLongitude
+  - VehicleId
+expect:
+  decision: DENY
+  rule: R6
+tags:
+- deny
+- R6
+- role_ceiling

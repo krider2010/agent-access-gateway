@@ -23,13 +23,10 @@ Three layers. They prove different things.
 | 2. Model explanation | The model explains a verdict without inventing an alternative, and finishes | Direct HTTP to the inference endpoint |
 | 3. End to end | Everything around the decision: the resolver, the audit trail, the sanctioned path, and per-request wall clock | MCP front door to n8n to the data plane. `eval/e2e_check.py` |
 
-**Layer 3 used to be described as "the n8n workflows agree with the policy file", and that is
-no longer what it proves.** The rules were once implemented twice, in Python for the harness
-and in JavaScript for n8n, and checking that the two agreed was worth doing. There is now one
-implementation, in `gateway/policy_engine.js`, which the Python harness calls. Drift is
-impossible rather than detectable, which is the stronger property, but it means agreement is
-no longer evidence of anything, because both sides are the same code. A layer 3 that claimed
-otherwise would be checking that code agrees with itself.
+**Layer 3 does not prove that the n8n workflows agree with the policy file.** One
+implementation decides, `gateway/policy_engine.js`, and the Python harness calls it. So
+agreement between harness and gateway is not evidence of anything. Both sides are the same
+code, and a layer 3 that claimed otherwise would be checking that code agrees with itself.
 
 What it proves instead, and none of this follows from layers 1 and 2:
 

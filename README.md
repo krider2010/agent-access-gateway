@@ -66,16 +66,12 @@ The evidence it would render already exists: the audit trail is written on every
 and `GET /audit/tail` serves it, so what is missing is the screen, not the record behind it.
 Until someone builds it, reading the trail means reading `audit/decisions.jsonl`.
 
-**What the eval numbers can and cannot show.** The rules used to exist
-twice, once in Python for the harness and once in JavaScript for n8n, and the harness checked
-that the two agreed. That check has been retired, because agreement between two copies of the
-same logic mostly proves the copying worked. There is now one engine, in JavaScript, and the
-Python harness calls it. That makes drift impossible rather than detectable, which is the
-stronger property, but it also means the eval numbers can no longer be read as "n8n agrees
-with the policy file"; they cannot, since both sides are the same code. What still needs
-proving separately is everything around the decision. Four things: that a tool call resolves
-to the request the rules expect, that the policy is fetched rather than baked in, that exactly
-one audit record is written per call, and that a sanctioned path actually executes.
+**What the eval numbers can and cannot show.** One engine decides,
+`gateway/policy_engine.js`, and the Python harness calls it. The numbers are therefore not two
+implementations agreeing; both sides run the same code. What they measure is everything
+around the decision. Four things: that a tool call resolves to the request the rules expect,
+that the policy is fetched rather than baked in, that exactly one audit record is written per
+call, and that a sanctioned path actually executes.
 
 ## Getting started
 

@@ -281,8 +281,8 @@ for a model running live, which is what tips the choice to Nano.
 All verified by reading n8n 2.32.7 in the running container rather than from documentation.
 
 **Use `@n8n/n8n-nodes-langchain.lmChatNvidia` (v1).** It exists, it's first-party, and it
-takes a dedicated **`nvidiaApi`** credential, so we can drop the old demo's hand-rolled
-`create_nvidia_credential.js` AES encryption script entirely.
+takes a dedicated **`nvidiaApi`** credential. The credential is created through n8n's own
+importer, and nothing here hand-rolls AES encryption to store an API key.
 
 ### 6.1 The credential *is* the Phase 6 migration
 

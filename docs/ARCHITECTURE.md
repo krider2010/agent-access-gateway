@@ -78,12 +78,9 @@ not an authorised one.
 **There is one implementation of that, not two.**
 [`gateway/policy_engine.js`](../gateway/policy_engine.js) is inlined into the workflow's Code
 node at build time and called directly by the eval harness, so the thing being tested and the
-thing running in n8n are the same file. This replaced an arrangement where the rules existed
-twice, once in Python for the harness and once in JavaScript for n8n, with a check that the two
-agreed. Making drift impossible is worth more than detecting it, but it does mean agreement
-between harness and gateway is no longer evidence of anything, so what the end-to-end tests
-prove is everything *around* the decision rather than the decision itself. That distinction is
-laid out in [EVALS.md](EVALS.md) §1.
+thing running in n8n are the same file. Agreement between harness and gateway is therefore not
+evidence of anything. What the end-to-end tests prove is everything *around* the decision
+rather than the decision itself. That distinction is laid out in [EVALS.md](EVALS.md) §1.
 
 **The model explains.** A local Nemotron receives the verdict, the matched rule's rationale
 and the sanctioned alternatives the policy already offers, and produces prose for a human.

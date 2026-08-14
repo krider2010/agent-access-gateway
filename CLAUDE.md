@@ -117,7 +117,7 @@ Snapshot files into a scratchpad directory instead if you need a baseline to dif
 
 ## Claims that must not be overclaimed
 
-The full ledger is kept with the project's planning material. The ones most likely to slip:
+The ones most likely to slip:
 
 - The law does not forbid the footage leaving. Consent from a filmed stranger is unobtainable,
   so the company sets its own floor.

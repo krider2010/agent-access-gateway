@@ -7,7 +7,10 @@ This describes the sequence that was actually run and verified, in the order tha
 Where a step exists to avoid a specific failure, the failure is named so you can tell
 whether it applies to you.
 
-Verified on macOS 15 (Apple M4 Pro) with OrbStack, against build.nvidia.com hosted models.
+Verified on macOS 15 (Apple M4 Pro) with OrbStack, against build.nvidia.com hosted models, and
+on a DGX Spark running Docker Engine for Linux. Docker Engine differs in one way, handled in §7:
+it does not resolve `host.docker.internal` for you, and that name does not point at the host's
+loopback.
 
 ---
 
@@ -15,7 +18,7 @@ Verified on macOS 15 (Apple M4 Pro) with OrbStack, against build.nvidia.com host
 
 | Requirement | Notes |
 |---|---|
-| Docker | OrbStack or Docker Desktop. `docker version` must answer. |
+| Docker | OrbStack, Docker Desktop or Docker Engine for Linux. `docker version` must answer. |
 | **No host Kubernetes running** | See §2. This is the one that will cost you an afternoon. |
 | `git`, `curl`, `python3` ≥ 3.10 | Host tooling. Python 3.14 is fine. |
 | Node.js ≥ 22 | Required by NemoClaw's installer. |
@@ -235,7 +238,7 @@ what makes beat 3's lighting breakdown a figure over 48,217 clips rather than ov
 display rows. One dataset is deliberately generated smaller than the catalog claims;
 `seed/out/MANIFEST.json` names it and says by how much.
 
-`make services` starts `gateway/gateway_services.js` on `127.0.0.1:4301`. **This has to come
+`make services` starts `gateway/gateway_services.js` on port 4301. **This has to come
 before any verification, because it is where the gateway reads its inputs from** (the access
 policy, the catalog just generated, and the model prompts) and where it writes every audit
 record and runs the data plane. Without it the workflow has nothing to decide against and
@@ -245,6 +248,28 @@ answering, and this one must not. Confirm it is up and can see both files:
 
 ```bash
 curl -s http://127.0.0.1:4301/health   # {"status":"ok","policy":true,"catalog":true,...}
+```
+
+### Which address the service binds
+
+n8n runs in a container and reaches this service as `host.docker.internal:4301`, so the bind
+address has to be one the container can route to. That address is platform-specific.
+
+| Platform | `host.docker.internal` is | Bound by `make services` |
+|---|---|---|
+| OrbStack, Docker Desktop | NAT'd to the host's loopback | `127.0.0.1` |
+| Docker Engine for Linux | the docker bridge gateway, via `--add-host` | `127.0.0.1` and that gateway |
+
+The script reads the gateway address from `docker network inspect bridge` and passes both to
+`--host`, which takes a comma-separated list. It binds two listeners rather than `0.0.0.0`: this
+port carries the audit sink and the data plane, and the wildcard would put both on every
+interface the machine has.
+
+Override with `GATEWAY_SERVICES_HOST`, comma-separated, if the n8n container is on a network
+other than the default bridge:
+
+```bash
+GATEWAY_SERVICES_HOST=127.0.0.1,172.17.0.1 make services
 ```
 
 ## 8. Verify
@@ -298,6 +323,14 @@ already running. `openshell gateway stop`, then re-run. See §6.
 
 **Onboard fails validating inference, but your key works with `curl`.** The onboard model
 is spending the probe budget on a reasoning trace. See §4.
+
+**The gateway answers with a connection error instead of a verdict, on Linux.** The decision
+workflow could not reach `host.docker.internal:4301`. Two causes, and the message
+tells them apart. `EAI_AGAIN` or `ENOTFOUND` means the container cannot resolve the name, so it
+predates the `--add-host` line in `n8n/scripts/up.sh`; recreate it with
+`make rebuild CONFIRM=yes`. `ECONNREFUSED` means the name resolved and nothing was listening on
+that address, so `make services` bound loopback only; see §7 and check the `listening:` lines in
+`/tmp/gateway-services.log`.
 
 **Skill calls return `403 ssrf_denied`.** `host.openshell.internal` resolves to a
 different address on your host than the ones allowlisted in

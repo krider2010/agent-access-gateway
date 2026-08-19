@@ -68,13 +68,20 @@ function read(file) {
 // n8n's management MCP surface
 // ---------------------------------------------------------------------------------------------
 
+// Expands `${VAR}` against keys already read, because every other reader of .env is a shell
+// sourcing it. Unresolved is fatal; expanding to empty gives `http://localhost:/...` instead.
 function loadEnv() {
   const env = {};
   for (const line of read(ENV_PATH).split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
     const at = trimmed.indexOf('=');
-    env[trimmed.slice(0, at).trim()] = trimmed.slice(at + 1).trim().replace(/^["']|["']$/g, '');
+    const key = trimmed.slice(0, at).trim();
+    const raw = trimmed.slice(at + 1).trim().replace(/^["']|["']$/g, '');
+    env[key] = raw.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_, name) => {
+      if (env[name] === undefined) die(`✗ .env: ${key} uses \${${name}}, not set above it.`);
+      return env[name];
+    });
   }
   return env;
 }

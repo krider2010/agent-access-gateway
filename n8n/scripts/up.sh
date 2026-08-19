@@ -52,8 +52,15 @@ docker pull "$N8N_IMAGE"
 #
 # NOTE: N8N_BASIC_AUTH_* was removed in n8n 1.x+ and is ignored on 2.x. The UI
 # login is the owner account created on first run; see n8n/scripts/setup.sh.
+#
+# --add-host: the gateway workflows fetch the policy, the prompts and the data plane from
+# host.docker.internal:4301. Docker Desktop and OrbStack resolve that name themselves; Docker
+# Engine on Linux does not resolve it at all. host-gateway reaches the host on all three, so
+# the mapping is unconditional rather than per-platform. It applies to a container being
+# created, so an instance that predates this line needs `make rebuild CONFIRM=yes`.
 docker run -d --name "$N8N_CONTAINER" \
   -p "${N8N_PORT}:5678" \
+  --add-host=host.docker.internal:host-gateway \
   -v "$N8N_VOLUME":/home/node/.n8n \
   `# -e N8N_ENCRYPTION_KEY="$(cat /path/to/your/encryption-key)"  # only for restoring an encrypted export` \
   "$N8N_IMAGE"

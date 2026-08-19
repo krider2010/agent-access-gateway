@@ -24,7 +24,9 @@ export N8N_VOLUME
 SKILL_NAME := access-gateway
 STAGE_DIR := /tmp/$(SKILL_NAME)-install-stage
 
-.PHONY: help n8n-up n8n-setup n8n-cred rebuild n8n-mcp-on n8n-mcp-off n8n-mcp-status services install verify down clean k8s-off k8s-on
+# `console` must be here or Make finds the console/ directory, decides the target is already
+# up to date, and does nothing.
+.PHONY: help n8n-up n8n-setup n8n-cred rebuild n8n-mcp-on n8n-mcp-off n8n-mcp-status services services-restart console install verify down clean k8s-off k8s-on
 
 help:
 	@echo "Targets:"
@@ -38,6 +40,8 @@ help:
 	@echo "  n8n-mcp-off disable it; isolate.sh does this already, so the running demo"
 	@echo "              has only the gateway front door live on 5678"
 	@echo "  services    start the policy, audit and data service on 4301 (needed by the gateway)"
+	@echo "  services-restart  restart it; needed after editing gateway/policy_engine.js"
+	@echo "  console     open the governance console (needs services)"
 	@echo "  install     full installer (SANDBOX=<name> optional, auto-detects)"
 	@echo "  verify      health round-trip: the gateway front door via the skill,"
 	@echo "              from inside the sandbox"
@@ -83,6 +87,20 @@ n8n-mcp-status: ## Is the management API answering, and is the front door reacha
 
 services: ## Start the gateway's policy, audit and data service on port 4301
 	bash gateway/scripts/services.sh
+
+services-restart: ## Restart it. Needed after editing gateway/policy_engine.js, which the
+                  ## service requires once at startup; access_policy.yaml is re-read per request.
+	@pkill -f gateway_services.js 2>/dev/null || true
+	@sleep 1
+	@bash gateway/scripts/services.sh
+
+console: ## Open the governance console (needs `make services`)
+	@curl -sf -o /dev/null http://127.0.0.1:4301/health \
+	  || { echo "✗ Gateway services are not up. Run: make services"; exit 1; }
+	@echo "▸ http://127.0.0.1:4301/console"
+	@open http://127.0.0.1:4301/console 2>/dev/null \
+	  || xdg-open http://127.0.0.1:4301/console 2>/dev/null \
+	  || true
 
 # --- sandbox -------------------------------------------------------------------
 

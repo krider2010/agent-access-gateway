@@ -7,6 +7,6 @@
     "export_metrics_only"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because it involves statistical analysis of non-personal data from a large dataset, which does not pose privacy risks. The lighting breakdown and cluster health assessment are both permissible under the policy. There is no sanctioned alternative in this case, as the request is already approved.\n",
+  "response_text": "The request is allowed because it involves querying aggregated statistics about non-personal data, specifically lighting breakdowns and cluster health metrics, which do not pose privacy risks. The decision aligns with the policy allowing such statistical analyses. There is no sanctioned alternative in this case.\n",
   "redirect_chosen": null
 }

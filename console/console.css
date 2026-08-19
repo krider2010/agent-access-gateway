@@ -1,0 +1,161 @@
+/* console.css: the governance console's whole stylesheet.
+ *
+ * No framework and no build step. The page is three read-only views over JSON this service
+ * already serves, and it has to keep working with the box off the network, which rules out a CDN.
+ *
+ * Colours carry meaning here rather than decoration: DENY, ALLOW and REQUIRE_APPROVAL are the
+ * three answers the policy has, and a viewer should be able to read the feed's shape from across
+ * a room. They are distinguishable by their left border and their label, not by hue alone.
+ */
+
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --panel-2: #1e222b;
+  --line: #2a2f3a;
+  --text: #e6e8ec;
+  --muted: #9aa2b1;
+  --deny: #ff6b6b;
+  --allow: #4ade80;
+  --approval: #fbbf24;
+  --accent: #76b3ff;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+h1 { margin: 0; font-size: 1.15rem; letter-spacing: 0.01em; }
+h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 2rem 0 0.75rem; }
+.sub { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.85rem; }
+
+.live { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.ok { background: var(--allow); }
+.dot.bad { background: var(--deny); }
+
+.tabs { display: flex; gap: 0.25rem; padding: 0 1.5rem; border-bottom: 1px solid var(--line); background: var(--panel); }
+.tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); font: inherit; font-size: 0.9rem;
+  padding: 0.7rem 0.9rem; cursor: pointer;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.count { display: inline-block; min-width: 1.2em; padding: 0 0.35em; border-radius: 999px;
+         background: var(--approval); color: #1a1400; font-size: 0.72rem; font-weight: 700; }
+.count:empty { display: none; }
+
+main { padding: 1.5rem; max-width: 1100px; }
+.view.hidden { display: none; }
+.note { color: var(--muted); font-size: 0.86rem; max-width: 70ch; }
+
+.stats { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 0.9rem; min-width: 7rem; }
+.stat .n { font-size: 1.3rem; font-weight: 650; }
+.stat .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+
+.controls { display: flex; gap: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--muted); }
+select { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.4rem; font: inherit; font-size: 0.85rem; }
+
+.feed { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.record {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--muted);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+.record.DENY { border-left-color: var(--deny); }
+.record.ALLOW { border-left-color: var(--allow); }
+.record.REQUIRE_APPROVAL { border-left-color: var(--approval); }
+
+.record .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; }
+.verdict { font-weight: 700; font-size: 0.82rem; letter-spacing: 0.06em; }
+.record.DENY .verdict { color: var(--deny); }
+.record.ALLOW .verdict { color: var(--allow); }
+.record.REQUIRE_APPROVAL .verdict { color: var(--approval); }
+
+.rule { font-family: var(--mono); font-size: 0.8rem; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 0.05rem 0.4rem; }
+.rule.none { color: var(--approval); border-color: var(--approval); }
+.tool { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
+.when { margin-left: auto; color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+
+.record .meta { margin-top: 0.45rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; font-size: 0.8rem; color: var(--muted); }
+.record .meta b { color: var(--text); font-weight: 500; font-family: var(--mono); font-size: 0.78rem; }
+
+/* The badge is the sovereignty claim, one decision at a time: which model worded it, and where
+ * that model was running when it did. `on-prem` is the claim; `hosted` is the honest admission
+ * that it is not true yet. They must not look alike. */
+.badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  margin-top: 0.5rem; padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line); border-radius: 999px;
+  font-family: var(--mono); font-size: 0.73rem; color: var(--muted);
+}
+.badge .where { font-weight: 700; letter-spacing: 0.04em; }
+.badge.hosted .where { color: var(--approval); }
+.badge.onprem .where { color: var(--allow); }
+
+.redirects { margin-top: 0.45rem; font-size: 0.8rem; }
+.redirects .k { color: var(--muted); }
+.redirects code { color: var(--accent); }
+
+.order { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.8rem; }
+.order .step { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.45rem; }
+.order .arrow { color: var(--muted); }
+
+.rules { display: flex; flex-direction: column; gap: 0.6rem; }
+.ruleCard { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 0.9rem; }
+.ruleCard .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; }
+.ruleCard .name { font-weight: 600; }
+.effect { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; padding: 0.05rem 0.4rem; border-radius: 4px; }
+.effect.DENY { color: var(--deny); border: 1px solid var(--deny); }
+.effect.ALLOW { color: var(--allow); border: 1px solid var(--allow); }
+.effect.REQUIRE_APPROVAL { color: var(--approval); border: 1px solid var(--approval); }
+.terminal { font-size: 0.7rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 0.05rem 0.35rem; }
+.ruleCard .rationale { margin-top: 0.5rem; font-size: 0.87rem; color: var(--text); }
+.ruleCard .match { margin-top: 0.5rem; font-family: var(--mono); font-size: 0.76rem; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.82rem; }
+.chip .t { font-family: var(--mono); font-size: 0.78rem; }
+.chip .trusted { color: var(--allow); }
+.chip .untrusted { color: var(--deny); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.84rem; margin-top: 0.5rem; }
+th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 500; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; }
+td.n { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+.empty { color: var(--muted); font-size: 0.88rem; padding: 1.5rem 0; }
+.warn { border-left: 3px solid var(--approval); padding-left: 0.8rem; color: var(--muted); font-size: 0.84rem; }
+
+footer { padding: 1rem 1.5rem 2rem; color: var(--muted); font-size: 0.76rem; }
+code { font-family: var(--mono); font-size: 0.85em; }
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f8fa; --panel: #ffffff; --panel-2: #eef1f5; --line: #d8dde5;
+    --text: #14171c; --muted: #5b6472;
+    --deny: #c02626; --allow: #157f3d; --approval: #9a6200; --accent: #1c5fb4;
+  }
+  .count { color: #fff; }
+}

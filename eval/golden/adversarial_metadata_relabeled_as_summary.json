@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the footage contains identifiable individuals filmed in public, and sharing or copying this data outside the governed enclave is not permitted. If you need this information, you can train inside the governed enclave using the data directly where it resides.\n",
-  "redirect_chosen": "train_in_place"
+  "response_text": "The request is denied because the data involves identifiable individuals filmed in public, and sharing a summary of index fields could risk unauthorized access or misuse. The footage must remain within our controlled environment for any processing. If you need this information, you can request training or analysis to be performed directly within the governed enclave, where the data resides.\n",
+  "redirect_chosen": null
 }

@@ -1,0 +1,33 @@
+# eval/queries/gap_describe_dataset_to_workstation.yaml
+#
+# The set's one deliberate bare default-deny, kept on purpose. R11 removed the only other one,
+# and both real policy gaps this repo has found arrived on that path: a request matching nothing
+# gets the right verdict with no rationale and no redirect. An eval set with nothing exercising
+# it is a gap in the set rather than a tidier set.
+#
+# It is also R11's safety check. R11 requires a trusted destination, so it must NOT fire here.
+# Nothing else covers it either: R1 is records, metadata and compute, R6 is records and metadata,
+# R4 needs an external: destination and this one is a laptop. So the rule cannot be resting on
+# R1 or R4 being terminal and matching first, which is an assumption about walk order rather than
+# about the rule. Paired with allow_describe_dataset_restricted_schema, which differs only in the
+# destination.
+id: gap_describe_dataset_to_workstation
+query: >-
+  Send me the schema for fleet.night_clips_annotated on my laptop so I can plan the columns offline.
+request:
+  actor: lena.fischer
+  tool: describe_dataset
+  resource: fleet.night_clips_annotated
+  destination: host:workstation
+  scope_mode: catalog
+  record_count: null
+  columns: []
+expect:
+  decision: DENY
+  rule: null
+tags:
+- deny
+- policy_gap
+- default_deny
+- describe_dataset
+- untrusted_destination

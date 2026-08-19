@@ -7,6 +7,6 @@
     "request_owner_approval"
   ],
   "answer_source": "model",
-  "response_text": "The request cannot be fulfilled because the data is considered commercially sensitive, and only an accountable human can make decisions about its use. If you need this information, you should reach out to the dataset's owner for approval or guidance.\n",
+  "response_text": "The request cannot be fulfilled because the dataset is considered commercially sensitive, and only an accountable human can make decisions about its use. If you need this data, you should reach out to the dataset's owner for approval or guidance on accessing it.\n",
   "redirect_chosen": "request_owner_approval"
 }

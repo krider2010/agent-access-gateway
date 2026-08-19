@@ -7,6 +7,6 @@
     "coarsen_grouping"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because it would return individual clip details rather than aggregated group counts, which violates the policy's intent to avoid row-level granularity. If you'd like aggregated data, consider grouping clips into bands of at least 25 clips instead.\n",
+  "response_text": "The request is denied because it would return individual clip details rather than aggregated group counts, which violates the policy's requirement for broader grouping. If you'd like aggregated data, you can instead request grouping into bands of at least 25 clips, which provides meaningful insights without exposing individual clip information.\n",
   "redirect_chosen": null
 }

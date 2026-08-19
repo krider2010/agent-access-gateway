@@ -222,7 +222,7 @@ the other's case.
 
 | Gap | Status |
 |---|---|
-| `deny_describe_dataset_restricted_schema` | Still `matched_rule: null`. Whether a restricted dataset's *schema* is itself sensitive is a policy judgement, not a plumbing fix, so it is untouched. Tagged `policy_gap`. |
+| `gap_describe_dataset_to_workstation` | `matched_rule: null`, and kept that way on purpose. `R11` closed the schema question, which was this row's previous occupant, and in doing so removed the set's only bare default-deny. Both real policy gaps found here arrived on that path, so one case is held on it: a schema read to an untrusted destination, which `R1` does not cover because it is catalog scope and `R4` does not cover because a laptop is not an external host. It also proves `R11` is not resting on either of those matching first. |
 | The differencing attack | Two aggregates that each clear every floor can be subtracted to isolate one clip. No per-request predicate can catch it; it needs reasoning over query history. Both halves are in the eval set as `adversarial_differencing_attack_part{1,2}`, expecting ALLOW, as documentation of the limit rather than as a test that can fail. A three-arm study of whether a model could catch it is in [EVALS.md](EVALS.md) §8. |
 
 

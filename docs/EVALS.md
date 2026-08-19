@@ -72,7 +72,7 @@ instead of two agreeing copies, and it is the right way round.
 Always run these scripts with `.venv-eval/bin/python` rather than a bare `python3`. They
 import `yaml`, which lives in that virtualenv and generally not in the system interpreter.
 
-37 cases: allowed work, aggregate access, approval paths, all five denial rungs, sanctioned
+39 cases: allowed work, aggregate access, approval paths, all five denial rungs, sanctioned
 paths, and adversarial attempts including claimed pre-authorisation, chunked export,
 encoding dodges, prompt injection in the query text, sub-threshold aggregates, forbidden
 group-by columns, and a differencing attack.
@@ -110,7 +110,7 @@ working files are gone, but read them as a record rather than as something you c
 | Call failures | 0 | 0 |
 
 The 9B shipped its own words on all 35 cases in both runs. (The set was 35 cases when those
-runs happened; it is 37 now. Figures in this table are left as measured rather than rescaled,
+runs happened; it is 39 now. Figures in this table are left as measured rather than rescaled,
 which is why the denominators here differ from §3.1's.)
 
 **Why these say `/35` where `MODEL_STRATEGY.md` §4c says `/34` for the same two runs.** They
@@ -118,7 +118,7 @@ count different things, and both are right. 35 is every case a model was asked a
 it is the denominator for "did the model finish". 34 is the cases that were *scored* against
 the gateway's accuracy, one fewer because a case marked `enforced_by` the sandbox is excluded.
 The sandbox stops it, not the gateway, so counting it either way would misattribute the result.
-The same split survives today at 37 and 36.
+The same split survives today at 39 and 38.
 
 ### The 30B's ceiling count moves between runs
 
@@ -157,19 +157,18 @@ mean budget; it is deliberating at length before committing.
 
 ## 3.1 Layer 3: the whole path, measured
 
-Run on 2026-08-13 against a rebuilt instance, all 37 cases out through the MCP Server Trigger
-and back through the decision workflow and the data plane. From
-`eval/results/e2e/summary.json`.
+Run on 2026-08-19 after `R11` landed, all 39 cases out through the MCP Server Trigger and back
+through the decision workflow and the data plane. From `eval/results/e2e/summary.json`.
 
 | | Result |
 |---|---|
-| Cases agreeing with the oracle | **36 / 36 scored** |
+| Cases agreeing with the oracle | **38 / 38 scored** |
 | Transport errors | 0 |
 | Exactly one audit record per call | **yes, 0 wrong** |
-| ALLOWs that returned a real result | **13 / 13** |
+| ALLOWs that returned a real result | **15 / 15** |
 | Alternatives invented that policy did not authorise | **0** |
-| Wall clock p50 | **1578 ms** |
-| Wall clock p95 | **4748 ms**, and see the warning below |
+| Wall clock p50 | **1822 ms** |
+| Wall clock p95 | **9382 ms**, and see the warning below |
 
 Every figure in that table is a field of `eval/results/e2e/summary.json`, so it is one
 `cat` away from being re-checked, and it changes whenever the harness is re-run. The fields are
@@ -182,9 +181,12 @@ MCP round trip, three HTTP fetches inside the workflow (the policy, the catalog 
 prompts, each a GET to `:4301`), the model call, the audit write and, on an ALLOW, the data
 plane. §3's figures are the model call alone and are roughly a third to a half of this.
 
-**Do not quote the p95 as a single number.** Three runs of this harness on 2026-08-13, against
-an unchanged gateway, gave p95 figures of **2596, 3105 and 4748 ms**, a 1.8× spread. The p50
-moved far less, 1398 to 1578. The cause is not the gateway: the model call dominates each
+**Do not quote the p95 as a single number.** Four runs of this harness, three on 2026-08-13
+against an unchanged gateway and one on 2026-08-19, gave p95 figures of **2596, 3105, 4748 and
+9382 ms**, a 3.6× spread. The p50 moved far less, 1398 to 1822. In the 2026-08-19 run two cases
+carried the whole tail, at 10021 and 9382 ms, with the other 37 under 3.1 seconds. Which two is
+noise rather than a finding: they share no rule, no tool and no data-plane path, and a different
+pair will be slow next run. The cause is not the gateway. The model call dominates each
 request, `integrate.api.nvidia.com` is a shared free tier, and
 [MODEL_STRATEGY.md](MODEL_STRATEGY.md) §4d records another model's latency swinging tenfold
 within a day on the same prompt. So quote it for stage timing as **"p50 around 1.5 seconds,
@@ -196,7 +198,7 @@ a tail this wide on someone else's queue is not something a demo can wait out.
 
 **Every ALLOW returned something real.** `access_policy.yaml` says of the `train_in_place`
 sanctioned path that it "must actually execute, not merely be described, or the redirect is a
-brochure". Until this ran, nothing checked that. Thirteen of thirteen ALLOWs came back with a
+brochure". Until this ran, nothing checked that. Fifteen of fifteen ALLOWs came back with a
 result rather than a placeholder, including a real GROUP BY over all 48,217 clips and a
 training job returning metrics and no rows.
 
@@ -315,7 +317,7 @@ composed from the policy with no model involved:
 > policy_engine.py's IMPLEMENTATION NOTES item 1.
 
 Two details in that quote are out of date, and it is quoted anyway because the alternative is
-worse. It says `R1-R7` where the policy now has ten rules, and it names `policy_engine.py`
+worse. It says `R1-R7` where the policy now has eleven rules, and it names `policy_engine.py`
 where the engine now lives in `policy_engine.js`. Both are true of the run this text came
 from and false of the code today; the span is derived at runtime and the file moved when the
 two implementations collapsed into one. Editing a quotation to say what the code says now
@@ -323,10 +325,12 @@ would make this section agree with reality by ceasing to be a quotation, which i
 move as remembering a number instead of reading it. It gets replaced by a real quote the next
 time the set is run, not patched by hand.
 
-## 6. Two policy gaps the eval set found
+## 6. Three policy gaps of one shape
 
-Both were found before any n8n workflow existed, and both are kept as regression tests. Both
-still pass after the scenario change.
+All three are the same failure: a request matches no rule, falls to bare default-deny, and the
+engineer gets the right verdict with no rationale and no alternative. All three are kept as
+regression tests. The first two were found before any n8n workflow existed and still pass after
+the scenario change; the third was carried as an open question rather than discovered.
 
 **`R1` did not cover computation.** Its `scope_mode` listed `records` and `metadata`. A
 request to train on restricted data at an untrusted location therefore matched no rule at
@@ -349,6 +353,27 @@ That is a poor outcome anywhere and an absurd one in a deployment whose whole po
 running on that box. The predicate is now `execution_location_trusted: true`, which is what
 the rationale meant by "the job runs where the data lives". Regression case:
 `gap_training_job_spark_local`.
+
+**No rule allowed a restricted dataset's schema to be read.** `describe_dataset` resolves to
+catalog scope, which `R1` and `R6` do not cover, and no ALLOW rule covered it either. So asking
+what columns `fleet.night_clips_annotated` carries fell to default-deny. Unlike the two above,
+this one was known and left open: whether a schema is itself sensitive is a policy judgement, and
+the eval case carried the DENY expectation with a `policy_gap` tag until it was made.
+
+Settled on 2026-08-19 by revealing it, under `R11`, at catalog scope only. Column names,
+classification, residency and owner describe a dataset; the values disclose it. The practical
+argument decided it: an engineer who is refused the schema learns it anyway by trial and error
+against `R9`, generating denied requests and audit noise to discover what one call would have
+told them. `R11` takes no classification predicate, because a ceiling test would reproduce the
+gap it closes. Cases: `allow_describe_dataset_restricted_schema`, and
+`allow_describe_dataset_internal_schema` and `allow_list_datasets_catalog`, which both moved off
+the `R0-IMPLICIT` fallback onto a named rule.
+
+**One case is held on bare default-deny on purpose.** `R11` removed the set's only one, and all
+three gaps above arrived on that path, so an eval set with nothing exercising it is a gap in the
+set. `gap_describe_dataset_to_workstation` asks for the same schema at an untrusted destination.
+It doubles as `R11`'s safety check: the rule requires a trusted destination, and it must not be
+resting on `R1` or `R4` matching first, since neither covers catalog scope to a laptop.
 
 ## 7. What this does not tell you
 

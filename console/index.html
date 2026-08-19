@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kerbline Access Gateway: governance console</title>
+<link rel="stylesheet" href="/console/console.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Kerbline Access Gateway</h1>
+    <p class="sub">Governance console. Every access decision, the rule that made it, and where it was worded.</p>
+  </div>
+  <div class="live">
+    <span id="liveDot" class="dot"></span>
+    <span id="liveText">connecting</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" class="tab active" data-view="decisions">Decisions</button>
+  <button role="tab" class="tab" data-view="pending">Awaiting sign-off <span id="pendingBadge" class="count"></span></button>
+  <button role="tab" class="tab" data-view="policy">Policy</button>
+  <button role="tab" class="tab" data-view="evals">Evals</button>
+</nav>
+
+<main>
+
+  <section id="view-decisions" class="view">
+    <div class="stats" id="decisionStats"></div>
+    <div class="controls">
+      <label>Show
+        <select id="decisionFilter">
+          <option value="all">every decision</option>
+          <option value="DENY">denials only</option>
+          <option value="ALLOW">allows only</option>
+          <option value="REQUIRE_APPROVAL">approvals only</option>
+        </select>
+      </label>
+      <label>Last
+        <select id="decisionLimit">
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="200">200</option>
+          <option value="0">all</option>
+        </select>
+      </label>
+    </div>
+    <div id="decisionFeed" class="feed"></div>
+  </section>
+
+  <section id="view-pending" class="view hidden">
+    <p class="note">
+      <code>R3</code> returns <code>REQUIRE_APPROVAL</code>. The gateway writes a pending record,
+      audits it, and names the dataset owner it was routed to. It does not wait and there is no
+      resume path: an approved request is re-evaluated from scratch, so an approval cannot be
+      replayed against a different one.
+    </p>
+    <div id="pendingFeed" class="feed"></div>
+  </section>
+
+  <section id="view-policy" class="view hidden">
+    <div class="stats" id="policyStats"></div>
+    <p class="note">
+      Served live from <code>policy/access_policy.yaml</code>. The gateway fetches this same
+      document on every request, so what is below is what decided the calls on the Decisions tab.
+    </p>
+    <h2>Evaluation order</h2>
+    <div id="policyOrder" class="order"></div>
+    <h2>Rules</h2>
+    <div id="policyRules" class="rules"></div>
+    <h2>Classifications</h2>
+    <div id="policyClassifications" class="chips"></div>
+    <h2>Destinations</h2>
+    <div id="policyDestinations" class="chips"></div>
+    <h2>Sanctioned paths</h2>
+    <div id="policyPaths" class="rules"></div>
+  </section>
+
+  <section id="view-evals" class="view hidden">
+    <div id="evalBody"></div>
+  </section>
+
+</main>
+
+<footer>
+  <span id="footerNote"></span>
+</footer>
+
+<script src="/console/console.js"></script>
+</body>
+</html>

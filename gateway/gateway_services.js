@@ -109,6 +109,18 @@ const MANIFEST_PATH = path.join(SEED_OUT, 'MANIFEST.json');
 const PROMPTS_PATH = path.join(REPO_ROOT, 'gateway', 'prompts.yaml');
 const AUDIT_DIR = path.join(REPO_ROOT, 'audit');
 const AUDIT_PATH = path.join(AUDIT_DIR, 'decisions.jsonl');
+const CONSOLE_DIR = path.join(REPO_ROOT, 'console');
+const E2E_DIR = path.join(REPO_ROOT, 'eval', 'results', 'e2e');
+const E2E_SUMMARY_PATH = path.join(E2E_DIR, 'summary.json');
+const E2E_TRACE_PATH = path.join(E2E_DIR, 'trace.jsonl');
+
+// The console's three files, by request path. A map rather than a served directory: a key
+// lookup has no traversal to get wrong.
+const CONSOLE_FILES = {
+  '/console/index.html': { name: 'index.html', type: 'text/html; charset=utf-8' },
+  '/console/console.css': { name: 'console.css', type: 'text/css; charset=utf-8' },
+  '/console/console.js': { name: 'console.js', type: 'text/javascript; charset=utf-8' },
+};
 
 // Loaded row sets, keyed by file path. A dataset is parsed on first use and kept; the
 // alternative is re-parsing 20 MB of JSON on every aggregate, and the demo asks the same
@@ -599,11 +611,10 @@ function runReadRecords(request, dataset) {
 /**
  * One dataset's schema, volume and owner.
  *
- * What this does not settle: whether a RESTRICTED dataset's *schema* is itself sensitive.
- * eval/queries/deny_describe_dataset_restricted_schema.yaml resolves to DENY with no matched
- * rule, tagged as a policy gap. That is a judgement for whoever owns the policy, not for a
- * serving function, so nothing here treats classification specially. This runs only on ALLOW,
- * and what ALLOW means is the policy's business.
+ * Nothing here treats classification specially, and that is now the policy's position too rather
+ * than this function declining to have one. R11 allows catalog-scope reads at any classification
+ * to a trusted destination; a restricted dataset's schema used to fall to bare default-deny. This
+ * runs only on ALLOW, and what ALLOW means is the policy's business.
  */
 function runDescribeDataset(request, dataset) {
   const files = dataset.row_files;
@@ -1173,6 +1184,39 @@ function auditCount() {
   return fs.readFileSync(AUDIT_PATH, 'utf8').split('\n').filter((line) => line.trim()).length;
 }
 
+/**
+ * The per-case rows of the last Layer 3 run, narrowed to what the console renders.
+ *
+ * Narrowed rather than passed through: a trace row carries the model's full answer text for
+ * every case, which is tens of kilobytes the console does not display and would then be holding
+ * in a browser. An unreadable line is skipped rather than failing the whole view.
+ */
+function e2eCases() {
+  if (!fs.existsSync(E2E_TRACE_PATH)) return [];
+  const rows = [];
+  for (const line of fs.readFileSync(E2E_TRACE_PATH, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    let row;
+    try {
+      row = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    rows.push({
+      case_id: row.case_id,
+      tool: row.tool,
+      oracle_decision: row.oracle_decision,
+      gateway_decision: row.gateway_decision,
+      gateway_rule: row.gateway_matched_rule,
+      audit_records: row.audit_records_written,
+      result: row.gateway_result_present,
+      latency_ms: row.latency_ms,
+      agrees: row.agrees,
+    });
+  }
+  return rows;
+}
+
 function auditTail(limit) {
   if (!fs.existsSync(AUDIT_PATH)) return [];
   const lines = fs.readFileSync(AUDIT_PATH, 'utf8').split('\n').filter((line) => line.trim());
@@ -1374,6 +1418,48 @@ function handleGet(req, res, url) {
       return;
     }
     sendJson(res, 200, { records: auditTail(limit) });
+    return;
+  }
+
+  // The governance console. Served from this port rather than its own so it inherits the
+  // property the port already has: the sandbox cannot reach it, so the agent cannot read which
+  // of its own requests were refused. It also means no CORS and no second allowlist entry.
+  //
+  // An explicit map, not a directory served by joining the request path onto a root. There is no
+  // traversal to get wrong when the request path is a key lookup.
+  if (routePath === '/console' || routePath in CONSOLE_FILES) {
+    const file = CONSOLE_FILES[routePath === '/console' ? '/console/index.html' : routePath];
+    const full = path.join(CONSOLE_DIR, file.name);
+    if (!fs.existsSync(full)) {
+      sendError(res, 404, `missing ${full}`);
+      return;
+    }
+    const body = fs.readFileSync(full);
+    res.writeHead(200, {
+      Server: SERVER_VERSION,
+      'Content-Type': file.type,
+      'Content-Length': String(body.length),
+      // The page is three views over local JSON and loads nothing remote. Saying so means a
+      // stray CDN reference fails visibly here rather than working on this machine and dying
+      // on a box with no route out.
+      'Content-Security-Policy':
+        "default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'",
+    });
+    res.end(body);
+    return;
+  }
+
+  // The last Layer 3 run, for the console's evals view: the summary fields plus the per-case
+  // rows, which live in the trace rather than the summary. Both are written by
+  // eval/e2e_check.py into a gitignored directory, so absent is a normal state and says so.
+  if (routePath === '/eval/summary') {
+    if (!fs.existsSync(E2E_SUMMARY_PATH)) {
+      sendError(res, 404, `no Layer 3 run on disk — expected ${E2E_SUMMARY_PATH}`);
+      return;
+    }
+    const summary = JSON.parse(fs.readFileSync(E2E_SUMMARY_PATH, 'utf8'));
+    summary.cases = e2eCases();
+    sendJson(res, 200, summary);
     return;
   }
 

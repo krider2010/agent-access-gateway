@@ -12,7 +12,7 @@ request:
   columns: []
 expect:
   decision: ALLOW
-  rule: R0-IMPLICIT
+  rule: R11
 tags:
 - allow
 - catalog

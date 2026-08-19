@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the footage contains identifiable individuals filmed in public without consent, and processing must occur within the controlled enclave to ensure compliance and security. If you'd like to proceed, you can train the job inside the governed enclave using the data stored there.\n",
+  "response_text": "The request is denied because the footage contains identifiable individuals filmed in public without consent, and processing it outside the governed enclave poses risks to data control and privacy. If you'd like to proceed, you can train the job inside the enclave using the data stored there.\n",
   "redirect_chosen": null
 }

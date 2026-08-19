@@ -8,6 +8,6 @@
     "register_in_enclave"
   ],
   "answer_source": "model",
-  "response_text": "The request to publish weights trained in the enclave to the global registry is denied because models derived from restricted data, like fleet.night_clips_annotated, are treated as restricted artifacts due to their training provenance, even if they contain no sensitive footage. This ensures data residency constraints are maintained. If you need to share the model, you can instead provide evaluation metrics while keeping the weights within the enclave.\n",
-  "redirect_chosen": "export_metrics_only"
+  "response_text": "The request is denied because weights trained in the enclave with restricted data cannot be shared externally, as they retain the residency constraints of their training data. This ensures compliance with data residency policies. There is no sanctioned alternative available for this request.\n",
+  "redirect_chosen": null
 }

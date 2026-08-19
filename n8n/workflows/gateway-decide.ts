@@ -139,11 +139,10 @@ const prompts = $('Fetch Model Prompts').first().json;
 // The actor the gateway acts for, and the model that explains its verdicts. The actor is a
 // constant here and NOT a trigger input: docs/GATEWAY_CONTRACT.md section 2 requires it to come
 // from the session rather than tool arguments, because a request that names its own actor is
-// claiming an identity instead of proving one. The model is chosen on eval evidence rather than
-// taste (docs/MODEL_STRATEGY.md section 4c), and the build checks that the model node below
-// names the same one.
+// claiming an identity instead of proving one. The model is gateway/prompts.yaml's
+// \`policy_model\`, substituted here and into the model node below from that one key.
 const GATEWAY_ACTOR = 'lena.fischer';
-const POLICY_MODEL = 'nvidia/nvidia-nemotron-nano-9b-v2';
+const POLICY_MODEL = '@@POLICY_MODEL@@';
 
 const numberOrNull = (v) => (v === undefined || v === null || v === '' ? null : Number(v));
 const textOrNull = (v) => (v === undefined || v === null || v === '' ? null : String(v));
@@ -302,7 +301,7 @@ const policyBrain = languageModel({
   config: {
     name: 'Policy Brain (Nemotron)',
     parameters: {
-      model: 'nvidia/nvidia-nemotron-nano-9b-v2',
+      model: '@@POLICY_MODEL@@',
       options: { temperature: @@POLICY_TEMPERATURE@@, maxTokens: @@POLICY_MAX_TOKENS@@ },
     },
     credentials: { nvidiaApi: { id: 'KerblineNvidia01', name: 'NVIDIA Nemotron (Kerbline)' } },
@@ -383,9 +382,10 @@ const record = {
   redirect_offered: decided.verdict.redirects,
   redirect_accepted: null,
   policy_model: decided.policy_model,
-  // Until the policy brain runs on the box this is 'hosted'. It carries the sovereignty claim
-  // per decision, so it reports what happened, not what was configured.
-  policy_model_location: 'hosted',
+  // gateway/prompts.yaml's \`policy_model_location\`. Declared rather than derived, because a
+  // Code node cannot read the credential that holds the base URL; build.js checks the
+  // declaration against .env's INFERENCE_BASE_URL instead.
+  policy_model_location: '@@POLICY_MODEL_LOCATION@@',
   latency_ms: Date.now() - decided.started_at,
 };
 

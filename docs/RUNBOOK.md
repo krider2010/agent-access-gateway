@@ -17,7 +17,8 @@ hop.
 | n8n management MCP | `http://localhost:5678/mcp-server/http` | n8n's own admin surface, and the only thing besides the front door on this port. Build-time only: `n8n/workflows/isolate.sh` switches it off at the end of every build, because it can run any workflow, the one that makes access decisions included. `make n8n-mcp-on` / `make n8n-mcp-status`. |
 | Gateway services | port `4301`, loopback plus the docker bridge gateway on Linux ([SETUP.md](SETUP.md) §7) | Host process, `gateway/gateway_services.js`. Serves the policy and catalog to n8n, receives audit records, and holds the data plane: `POST /data/execute` runs an authorised tool call where the rows live. Log `/tmp/gateway-services.log`. **Deliberately not reachable from the sandbox**; see §4, and [GATEWAY_CONTRACT.md](GATEWAY_CONTRACT.md) §9 for why the data plane is on this port. |
 | OpenClaw chat UI | `http://127.0.0.1:18789` | Needs a token, see §5. Requires the port-forward. |
-| Skill (in sandbox) | `/sandbox/.openclaw/workspace/skills/access-gateway` | Stdlib-only client in its own venv. The sandbox policy opens the front door and nothing else. |
+| Skill (in sandbox) | `/sandbox/.openclaw/workspace/skills/access-gateway` | Node client against the standard library, using the runtime the sandbox already ships. No venv and no packages, which is what let the `pypi` egress grant be removed; the sandbox policy now opens the front door and nothing else. |
+| Governance console | `http://127.0.0.1:4301/console`, or `make console` | Static files in `console/`, served by the gateway services. Read-only, no dependencies. On the same port as the audit sink on purpose, so the agent cannot reach it either. |
 | Routing table | `/sandbox/.openclaw-data/workspace/HEARTBEAT.md` | Workspace root, not the skill directory. OpenClaw loads it at session start. |
 
 Secrets live in `.env` at the repo root, which is gitignored. Nothing else holds

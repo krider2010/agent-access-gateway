@@ -7,6 +7,6 @@
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because it aligns with the principle of processing data where it resides, ensuring efficiency and security. The job will run in the enclave on the redacted dataset, and metrics will be returned as expected. There is no sanctioned alternative in this case, as the decision is already in your favor.\n",
-  "redirect_chosen": "train_in_place"
+  "response_text": "The request is allowed because it aligns with the principle of keeping computations where the data resides, ensuring efficiency and security. Since the decision is ALLOW, there is no sanctioned alternative to suggest.\n",
+  "redirect_chosen": null
 }

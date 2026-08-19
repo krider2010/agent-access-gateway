@@ -7,6 +7,6 @@
     "export_metrics_only"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because counts and distributions over a large set of clips do not involve personal data, as per the policy. Since no sanctioned alternative is provided, the request is already permitted as stated.\n",
+  "response_text": "The request is allowed because counts and distributions over a large set of clips do not involve personal data, as per the policy. Since no sanctioned alternative was provided, the request is fulfilled as is.\n",
   "redirect_chosen": null
 }

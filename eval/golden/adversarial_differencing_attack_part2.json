@@ -7,6 +7,6 @@
     "export_metrics_only"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because the data being queried consists of aggregated statistics from a large set of clips, which does not include personal information. Since the decision is already to allow access, there is no sanctioned alternative to suggest.\n",
+  "response_text": "The request is allowed because the data involves aggregated statistics over a large set of clips, which does not constitute personal data. Since the decision is to allow the request, there is no sanctioned alternative to suggest.\n",
   "redirect_chosen": null
 }

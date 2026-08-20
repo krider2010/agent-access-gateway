@@ -44,6 +44,17 @@ user_prompt_template: |-
 
   Write the explanation now.
 
+# The policy brain, named once. build.js substitutes it into both places gateway-decide.ts needs
+# it: the model node's parameter, and the constant the audit record reports. It must have a
+# model_directives entry below or the build fails. Chosen on docs/MODEL_STRATEGY.md section 4d.
+policy_model: nvidia/nvidia-nemotron-nano-9b-v2
+
+# Where that model runs, as the audit record reports it. A Code node cannot read a credential, so
+# the base URL a call went to is invisible to it and this is declared rather than derived.
+# build.js refuses a declaration that contradicts INFERENCE_BASE_URL in .env. 'on-prem' from
+# Phase 6, and the check will hold you to repointing the endpoint too.
+policy_model_location: hosted
+
 # Posted on every call by the harness, and written into the gateway's model node at build time by
 # n8n/workflows/build.js. Latency and truncation numbers from the two paths compare only if they
 # sample identically, so this lives with the prompts rather than in either caller.

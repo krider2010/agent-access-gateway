@@ -191,13 +191,33 @@ decision staying in-country does not require the administrator to. See
 | Synthetic data generator, verified code tables | `seed/` |
 | Audit records, appended at run time | `audit/` (gitignored) |
 | Diagrams | `assets/diagrams/` |
-| Governance console | `console/` (not yet built) |
+| Governance console | `console/`, served by the `:4301` service at `/console` |
 
-## 9. What is not built yet
+## 9. The governance console
 
-**The governance console.** `console/` is empty. The audit log it would render is append-only
-and already written on every decision, so this is a missing view over existing data rather than
-a missing mechanism.
+`make console`, or `http://127.0.0.1:4301/console`. Four views: the live decision feed, the
+`R3` queue awaiting a dataset owner, the policy document as the gateway fetches it, and the last
+Layer 3 run.
 
-That is the whole list. Everything else described in this document is deployed and exercised;
-see [EVALS.md](EVALS.md) for what has been measured and what those measurements do not cover.
+**It introduced no new mechanism.** Every field it shows was already written and already served:
+`/audit/tail` for the decisions, `/policy` for the rules, `/catalog` for the dataset owners, and
+`/eval/summary` for the harness output. It is a view over evidence that existed, which is why it
+can be read as evidence rather than as a second account of what happened.
+
+**Served from `:4301` rather than a port of its own**, so it inherits that port's one useful
+property: the sandbox cannot reach it. The agent cannot read which of its own requests were
+refused, and cannot read the policy governing it by asking the console instead of the gateway.
+It also means no CORS and nothing new to keep off the sandbox allowlist.
+
+**No framework, no build step, no network.** Three files totalling a few hundred lines, and a
+Content-Security-Policy of `default-src 'none'` with `'self'` for its own script, style and
+fetches. A page that reached for a CDN would fail here rather than work on a laptop and die on a
+box with no route out, which is the box this demo is about.
+
+**The badge is the sovereignty claim, one decision at a time.** Each record shows which model
+worded it and where that model was running, read from the audit record rather than from the
+page's own configuration, so a feed spanning a Phase 6 cutover shows both values instead of
+relabelling history. Until then every badge says `hosted`, which is the honest reading.
+
+Everything described in this document is now deployed and exercised; see [EVALS.md](EVALS.md)
+for what has been measured and what those measurements do not cover.

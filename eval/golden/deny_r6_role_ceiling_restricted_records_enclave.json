@@ -5,6 +5,6 @@
   "engine_matched_rule": "R6",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is denied because your role as an ml_engineer only allows access to restricted data in specific forms, such as aggregates or through in-place computation, not direct access to raw records. There is no sanctioned alternative available for this request.\n",
+  "response_text": "The request is denied because your role as an ml_engineer only allows access to restricted data in specific ways, such as through aggregated data or in-place computation, not direct access to raw records. There is no sanctioned alternative available for this request.\n",
   "redirect_chosen": null
 }

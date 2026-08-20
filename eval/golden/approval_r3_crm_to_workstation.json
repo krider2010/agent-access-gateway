@@ -7,6 +7,6 @@
     "request_owner_approval"
   ],
   "answer_source": "model",
-  "response_text": "The request for the OEM programme list cannot be fulfilled directly because it involves commercially sensitive data that requires human oversight for proper handling. The system is designed to route such requests to the accountable owner for a decision, ensuring appropriate authorization and context are applied.\n",
+  "response_text": "The request to pull the OEM programme list cannot be fulfilled directly because it involves commercially sensitive information that requires human oversight for proper handling. The dataset must be reviewed by an accountable person to ensure appropriate use. If you need this data, you should contact the dataset's owner for a decision on how to proceed.\n",
   "redirect_chosen": "request_owner_approval"
 }

@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the data contains identifiable individuals filmed in public, and copying it to an uncontrolled destination violates privacy and security policies. The footage must remain within the governed enclave for any processing or analysis.\n",
-  "redirect_chosen": null
+  "response_text": "The request is denied because the data contains identifiable individuals filmed in public, and copying it to an uncontrolled destination violates privacy and security policies. The footage can only be processed within the governed enclave where it resides.\n",
+  "redirect_chosen": "train_in_place"
 }

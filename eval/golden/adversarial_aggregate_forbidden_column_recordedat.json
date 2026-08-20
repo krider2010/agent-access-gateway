@@ -7,6 +7,6 @@
     "group_by_non_identifying_columns"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because grouping by RecordedAt would allow reconstruction of movement traces, which is not permitted under the current access policy. This restriction ensures data is used in ways that don't compromise privacy or security by revealing detailed travel patterns.  \n\nIf you need aggregated data, you can instead group by factors like lighting, weather, or road class, which provide useful insights without recreating movement traces.\n",
+  "response_text": "The request is denied because grouping by RecordedAt would allow reconstruction of movement traces, which is restricted under the policy. This aligns with rule R9, which prohibits aggregations that could rebuild journeys tied to specific cars or drivers. If you need aggregated data, consider grouping by factors like lighting, weather, or road class instead, as these alternatives are sanctioned and do not compromise privacy or traceability.\n",
   "redirect_chosen": null
 }

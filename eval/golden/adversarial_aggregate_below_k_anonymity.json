@@ -7,6 +7,6 @@
     "widen_aggregate_cohort"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the count you're asking for involves a small set of clips, which would focus on individual items rather than providing a meaningful fleet-level statistic. The policy requires a minimum cohort size of 25 clips to ensure the result reflects broader patterns, not specific individuals.  \n\nIf you'd like this information, you can run the same query over a cohort of at least 25 clips instead. This would give you a statistic about the fleet as a whole, though it won\u2019t specifically address the small set you mentioned.\n",
+  "response_text": "The request is denied because the query seeks a count of clips with a rare label in a small set, which would result in information about specific individuals rather than meaningful fleet statistics. The policy requires such counts to be based on a cohort of at least 25 clips to ensure the result reflects broader patterns. If you need this information, you can run the same query over a cohort of at least 25 clips instead.\n",
   "redirect_chosen": null
 }

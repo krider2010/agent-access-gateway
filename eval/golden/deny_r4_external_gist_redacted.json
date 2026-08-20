@@ -5,6 +5,6 @@
   "engine_matched_rule": "R4",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to push the redacted research set to an external GitHub gist is denied because egress destinations must be explicitly allowlisted, and GitHub gists are not on the approved list. This ensures data remains within controlled environments. The request is not possible as there is no sanctioned alternative available.\n",
+  "response_text": "The request to push the redacted research set to an external GitHub gist is denied because egress destinations must be explicitly allowlisted, and GitHub gists are not on the approved list. This ensures compliance with data-access policies that restrict transfers to unlisted external hosts.  \n\nThere is no sanctioned alternative available for this request.\n",
   "redirect_chosen": null
 }

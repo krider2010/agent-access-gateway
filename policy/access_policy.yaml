@@ -376,6 +376,42 @@ rules:
       fail-closed reading as R8. For an aggregate with no GROUP BY at all there
       is exactly one cell, so the smallest cell is the cohort itself.
 
+  - id: R11
+    name: "Catalog metadata is readable regardless of the read ceiling"
+    effect: ALLOW
+    match:
+      scope_mode: [catalog]
+      destination_trusted: true
+    rationale: >
+      Column names, classification, residency, owner and volume describe a
+      dataset rather than disclose it. Knowing that a column called
+      GpsLatitude exists is not knowing where a car was. The schema is how an
+      engineer works out which requests are lawful before making one.
+    notes: >
+      No classification predicate, on purpose. This rule exists because
+      describing a RESTRICTED dataset used to match nothing and fall to bare
+      default-deny: the right verdict with no rationale and no alternative,
+      which is the wall behaviour R2, R5 and R8 were each written to avoid.
+      A ceiling test would have reproduced it, since the ceiling is what R6
+      applies and RESTRICTED sits above an ml_engineer's.
+
+      Denying the schema does not withhold it, it makes it expensive. The
+      engineer discovers the columns by trial and error against R9, generating
+      denied requests and audit noise to learn what one call would have told
+      them. Beat 3 needs to know a LightingCondition column exists.
+
+      Catalog scope only. No sample values and no distributions: those are
+      `records` and `aggregate`, and R1, R6, R8, R9 and R10 govern them
+      unchanged. The counter-argument for the record is that a column name can
+      leak practice, and a field called DriverFatigueScore would say the
+      company infers driver state. Nothing in this catalog does.
+
+      `destination_trusted` is not decoration. Without it this rule would
+      permit a schema read to a destination the policy distrusts, and it must
+      not rest on R1 and R4 happening to be terminal and matching first: R1
+      does not cover catalog scope at all. eval/queries carries the untrusted
+      case in both directions.
+
 # -----------------------------------------------------------------------------
 # Sanctioned paths: the redirect targets. The model may offer one of these and
 # may not invent an alternative. Deterministic redirects, natural wording.
@@ -454,7 +490,7 @@ evaluation:
   # conditions they fire on the absence of. But a request can match both R8 and
   # R9 at once (a small cohort grouped by a forbidden column), and this order
   # decides which reason the engineer is given: cohort first.
-  order: [R1, R4, R7, R6, R3, R8, R9, R10, R2, R5]
+  order: [R1, R4, R7, R6, R3, R8, R9, R10, R2, R5, R11]
   semantics: |
     1. Resolve the request: actor → role, resource → classification + residency
        + provenance, destination → trust properties, scope → mode + volume.

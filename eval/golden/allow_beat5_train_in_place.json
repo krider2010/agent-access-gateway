@@ -7,6 +7,6 @@
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because the fine-tuning job will run within the enclave where the data resides, aligning with the principle of processing computation near the data source. Evaluation metrics will be returned to you as part of the job's completion. There is no sanctioned alternative in this case, as the request is already permitted under the established policy.\n",
-  "redirect_chosen": null
+  "response_text": "The request is allowed because it aligns with the principle of processing data where it resides, ensuring efficiency and security. The fine-tuning job will run within the enclave, and you'll receive the evaluation metrics as a result. There is no sanctioned alternative for this request since it is already permitted under the current policy.\n",
+  "redirect_chosen": "train_in_place"
 }

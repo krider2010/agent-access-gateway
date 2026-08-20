@@ -49,22 +49,24 @@ So the guarantees hold under a model that is occasionally wrong. See
 **Working and verified:** self-hosted n8n with its management API gated to a single path. A
 NemoClaw sandbox running an OpenClaw agent whose only outbound route is the gateway's front
 door. The access policy, one deterministic policy engine driving both the gateway and the
-eval harness, and the policy and audit service. 37 eval cases laddered across four candidate
+eval harness, and the policy and audit service. 39 eval cases, 37 of them laddered across four candidate
 models, and a seeded synthetic data generator.
 
 The gateway answers in both directions. A denial comes back with its matched rule, a
 model-worded explanation and a sanctioned alternative. An ALLOW runs the data plane and comes
 back with output rather than a placeholder. A `GROUP BY` computed where the rows live, records
 projected to the columns that were asked for, or a training job's evaluation metrics and none
-of its training set. Every call either way writes one audit record to a port the agent cannot reach. All 37
-cases were replayed through the deployed front door on 2026-08-13; all thirteen ALLOWs
+of its training set. Every call either way writes one audit record to a port the agent cannot reach. All 39
+cases were replayed through the deployed front door on 2026-08-19; all fifteen ALLOWs
 returned a result rather than a placeholder, and the figures are in
 [docs/EVALS.md](docs/EVALS.md) §3.1.
 
-**Not built yet: the governance console.** `console/` holds a `.gitkeep` and nothing else.
-The evidence it would render already exists: the audit trail is written on every decision
-and `GET /audit/tail` serves it, so what is missing is the screen, not the record behind it.
-Until someone builds it, reading the trail means reading `audit/decisions.jsonl`.
+**The governance console.** `make console`, or `http://127.0.0.1:4301/console`. The live
+decision feed, the queue awaiting a dataset owner's sign-off, the policy document as the gateway
+fetches it, and the last end-to-end run. Every decision carries a badge naming the model that
+worded it and where that model was running, read from the audit record rather than from the
+page. No framework and no build step: three files, no dependencies, and a content policy that
+blocks anything remote, because the box this demo is about may have no route out.
 
 **What the eval numbers can and cannot show.** One engine decides,
 `gateway/policy_engine.js`, and the Python harness calls it. The numbers are therefore not two

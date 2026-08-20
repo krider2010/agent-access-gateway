@@ -18,10 +18,13 @@
  *
  * WHAT IS SUBSTITUTED, AND WHY THAT IS NOT OPTIONAL.
  *
- *   @@POLICY_ENGINE@@        gateway/policy_engine.js, inlined into the decision Code node
- *   @@POLICY_TEMPERATURE@@   the sampling settings recorded in gateway/prompts.yaml
+ *   @@POLICY_ENGINE@@             gateway/policy_engine.js, inlined into the decision Code node
+ *   @@POLICY_MODEL@@             the policy brain named in gateway/prompts.yaml, into both the
+ *                                model node and the constant the audit record reports
+ *   @@POLICY_MODEL_LOCATION@@    where it runs, checked against .env's INFERENCE_BASE_URL
+ *   @@POLICY_TEMPERATURE@@       the sampling settings recorded in gateway/prompts.yaml
  *   @@POLICY_MAX_TOKENS@@
- *   @@DECIDE_WORKFLOW_ID@@   the decision workflow's id, resolved by name from n8n
+ *   @@DECIDE_WORKFLOW_ID@@       the decision workflow's id, resolved by name from n8n
  *
  * The engine and the prompts are the files the eval harness tests. A second copy of either
  * inside a workflow drifts, and drifts invisibly: the workflow keeps working while quietly
@@ -71,6 +74,12 @@ function read(file) {
 // Expands `${VAR}` against keys already read, because every other reader of .env is a shell
 // sourcing it. Unresolved is fatal; expanding to empty gives `http://localhost:/...` instead.
 function loadEnv() {
+  if (!fs.existsSync(ENV_PATH)) {
+    die(
+      '✗ No .env at the repo root. Deploying needs one; copy .env.template and fill it in.\n' +
+      '  Offline checks (`build.js bodies`, fill_check, test_decide_code) do not.',
+    );
+  }
   const env = {};
   for (const line of read(ENV_PATH).split(/\r?\n/)) {
     const trimmed = line.trim();
@@ -202,24 +211,64 @@ function samplingFor(model) {
 }
 
 /**
- * The policy model, read off the model node and cross-checked against the constant the decision
- * Code node carries. Two places name it: n8n's own parameter, and a value the audit record
- * reports, so the build checks they agree rather than trusting the next person to change both.
- * It also decides which prompts.yaml entry the sampling settings come from.
+ * The policy model, read off gateway/prompts.yaml. It used to be two literals in
+ * gateway-decide.ts with this function checking they agreed; one key feeds both now. It also
+ * decides which model_directives entry samplingFor() reads.
  */
-function policyModel(source, label) {
-  const declared = /^[ \t]*model: '([^']+)',$/m.exec(source);
-  if (!declared) die(`✗ ${label}: no model node \`model:\` parameter found.`);
-  const model = declared[1];
-  const escaped = model.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (!new RegExp(`const POLICY_MODEL = '${escaped}';`).test(source)) {
+function policyModel() {
+  const found = /^policy_model:\s*(\S+)\s*$/m.exec(read(PROMPTS_PATH));
+  if (!found) die('✗ gateway/prompts.yaml has no top-level `policy_model:` line.');
+  return found[1];
+}
+
+// Somebody else's endpoint. One-way on purpose: no list can enumerate every on-premises address,
+// but this recognises the hosted service.
+const HOSTED_ENDPOINT = /(^|\.)api\.nvidia\.com$/;
+
+/**
+ * Where the policy brain runs, as every audit record reports it. Declared in prompts.yaml because
+ * a Code node cannot read the credential holding the base URL.
+ */
+function policyModelLocation() {
+  const found = /^policy_model_location:\s*(\S+)\s*$/m.exec(read(PROMPTS_PATH));
+  if (!found) die('✗ gateway/prompts.yaml has no top-level `policy_model_location:` line.');
+  return found[1];
+}
+
+/**
+ * Hold that declaration to .env's INFERENCE_BASE_URL, because a declaration nothing verifies is
+ * how this repo has been fooled twice. Phase 6 is where the label moves and the endpoint might
+ * not.
+ *
+ * DEPLOY PATH ONLY, and that is the whole point of it being a separate function. A wrong
+ * declaration does harm when it reaches an audit record, which is at deploy time. `bodies` emits
+ * Code node text for eval/fill_check.py and test_decide_code.js, which are offline checks that
+ * deploy nothing and must run on a clean clone with no .env at all.
+ */
+function checkPolicyModelLocation(location) {
+  const baseUrl = loadEnv().INFERENCE_BASE_URL;
+  if (!baseUrl) die('✗ .env has no INFERENCE_BASE_URL, so the declared location is unverifiable.');
+  let host;
+  try {
+    host = new URL(baseUrl).hostname;
+  } catch {
+    die(`✗ .env's INFERENCE_BASE_URL is not a URL: ${baseUrl}`);
+  }
+  const hosted = HOSTED_ENDPOINT.test(host);
+
+  if (location === 'hosted' && !hosted) {
     die(
-      `✗ ${label}: the model node asks for ${model}, but the decision Code node's ` +
-      'POLICY_MODEL names something else. The audit record would report a model that did not ' +
-      'answer.',
+      `✗ prompts.yaml says policy_model_location: hosted, but INFERENCE_BASE_URL points at ` +
+      `${host}. Every audit record would under-report where the decision was worded.`,
     );
   }
-  return model;
+  if (location !== 'hosted' && hosted) {
+    die(
+      `✗ prompts.yaml says policy_model_location: ${location}, but INFERENCE_BASE_URL points at ` +
+      `${host}, which is the hosted service. Every audit record would carry a sovereignty claim ` +
+      'the deployment has not earned.',
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -454,14 +503,19 @@ async function archiveSuperseded(name) {
 // The two builds
 // ---------------------------------------------------------------------------------------------
 
-/** Everything gateway-decide.ts needs, none of which requires n8n to be reachable. */
-function decideValues(source, label) {
-  const model = policyModel(source, label);
+/**
+ * Everything gateway-decide.ts needs, none of which requires n8n to be reachable, or a .env.
+ * The `bodies` subcommand runs on a clean clone, so keep it that way.
+ */
+function decideValues() {
+  const model = policyModel();
   const sampling = samplingFor(model);
   return {
     model,
     values: {
       POLICY_ENGINE: engineSource(),
+      POLICY_MODEL: model,
+      POLICY_MODEL_LOCATION: policyModelLocation(),
       POLICY_TEMPERATURE: sampling.temperature,
       POLICY_MAX_TOKENS: sampling.maxTokens,
     },
@@ -489,7 +543,9 @@ async function build(kind, options) {
   let values;
   let minimumBodies;
   if (kind === 'decide') {
-    ({ values } = decideValues(source, label));
+    ({ values } = decideValues());
+    // Deploy path only; see checkPolicyModelLocation.
+    checkPolicyModelLocation(values.POLICY_MODEL_LOCATION);
     minimumBodies = 1;
   } else {
     values = await frontDoorValues();
@@ -538,7 +594,7 @@ async function build(kind, options) {
 function printBodies() {
   const label = 'gateway-decide.ts';
   const source = read(SOURCES.decide);
-  const { model, values } = decideValues(source, label);
+  const { model, values } = decideValues();
   const { bodies } = convertCodeBodies(source, values, label);
   const out = { policy_model: model, bodies: {} };
   for (const body of bodies) out.bodies[body.name] = body.body;

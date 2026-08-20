@@ -5,6 +5,6 @@
   "engine_matched_rule": "R6",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is denied because your role as an ml_engineer only allows access to restricted data in the form of aggregates or through in-place computation, not for browsing individual records. There is no sanctioned alternative available for this specific request.\n",
+  "response_text": "Your request to browse the clip index of the annotated set is denied because your role as an ml_engineer restricts access to restricted data to either aggregated views or in-place computations, not direct browsing. This ensures data security and compliance with defined access policies.\n",
   "redirect_chosen": null
 }

@@ -7,6 +7,6 @@
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because the training job should run where the data resides, as per the policy rule R5, ensuring efficient computation and accurate evaluation metrics. There is no sanctioned alternative in this case, as the decision is already in favor of the request.\n",
+  "response_text": "The request is allowed because the training job will run directly on the Spark cluster where the data resides, aligning with the principle of keeping computation close to the data for efficiency. This approach ensures evaluation metrics are computed locally, reducing latency and resource transfer overhead.  \n\nThere is no sanctioned alternative for this request, as the decision to allow direct execution on Spark is final.\n",
   "redirect_chosen": "train_in_place"
 }

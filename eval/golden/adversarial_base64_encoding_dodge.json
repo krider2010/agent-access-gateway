@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the footage contains identifiable individuals filmed in public without consent, and transferring it to an uncontrolled destination violates privacy and security policies. The sanctioned alternative is to process or analyze the data within the governed enclave where it resides.\n",
+  "response_text": "The request is denied because the data involves identifiable individuals filmed in public, and we cannot ensure proper handling or control over copies sent to external destinations. If you need this data, you can train inside the governed enclave using the data directly where it resides.\n",
   "redirect_chosen": "train_in_place"
 }

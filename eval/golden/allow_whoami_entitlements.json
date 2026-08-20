@@ -5,6 +5,6 @@
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "Your request is allowed because the system's fallback rules permit access when no specific policy applies, and your connection to the governed enclave is trusted. Since there is no sanctioned alternative provided, I cannot suggest a different action\u2014this request is already permitted under the current setup.\n",
+  "response_text": "The request is allowed because the system's implicit rules permit access when no specific policy governs the action and the destination is trusted. Since no sanctioned alternative is provided, I cannot suggest an alternative action.\n",
   "redirect_chosen": null
 }

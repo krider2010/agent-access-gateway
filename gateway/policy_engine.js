@@ -351,6 +351,14 @@ const MATCHERS = {
     if (cells === null || cells === undefined) return true;
     return cells < floor;
   },
+
+  // No classification predicate, and none is missing. See the rule's notes in
+  // access_policy.yaml: a ceiling test here would reproduce the gap the rule closes.
+  R11(ix, rule, req, resource, destination) {
+    const m = rule.match;
+    if (!m.scope_mode.includes(req.scope_mode)) return false;
+    return destination.trusted === m.destination_trusted;
+  },
 };
 
 /** An explicit `redirect:` list, else sanctioned_paths pointing back (NOTES item 5). */

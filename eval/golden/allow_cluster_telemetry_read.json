@@ -5,6 +5,6 @@
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is allowed because the resource is classified as internal and the destination enclave is trusted, which falls under the system's fallback rules rather than a specific policy. Since no sanctioned alternative was provided, the request cannot be modified or redirected.\n",
+  "response_text": "The request is allowed because the resource is classified as internal and the destination is a trusted enclave, which falls within your role's permissions. This decision is based on a system-level fallback rule rather than a specific policy. Since no sanctioned alternative is provided, the request cannot be modified or redirected.\n",
   "redirect_chosen": null
 }

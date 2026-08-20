@@ -5,6 +5,6 @@
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to register the improved pedestrian model within the enclave is allowed because the resource's classification is confidential, which aligns with your role's access level, and the enclave is a trusted environment. Since no sanctioned alternative is provided, the action is permitted as-is.\n",
+  "response_text": "The request to register the improved pedestrian model within the enclave is allowed because the resource's classification and the trusted destination meet the necessary criteria, even though no specific policy rule applies. Since there is no sanctioned alternative provided, the action is permitted as is.\n",
   "redirect_chosen": null
 }

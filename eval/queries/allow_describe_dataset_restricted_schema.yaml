@@ -1,0 +1,25 @@
+# eval/queries/allow_describe_dataset_restricted_schema.yaml
+#
+# Inverted on 2026-08-19 when R11 landed. It expected DENY with no matched rule, and was tagged
+# as a policy gap for exactly that reason: the engineer got no reason and no alternative.
+# Whether a restricted dataset's schema is itself sensitive is argued in docs/EVALS.md section 6.
+# The schema is metadata; the values are the sensitive thing.
+id: allow_describe_dataset_restricted_schema
+query: >-
+  Describe fleet.night_clips_annotated for me -- what fields does it actually carry?
+request:
+  actor: lena.fischer
+  tool: describe_dataset
+  resource: fleet.night_clips_annotated
+  destination: enclave:governed
+  scope_mode: catalog
+  record_count: null
+  columns: []
+expect:
+  decision: ALLOW
+  rule: R11
+tags:
+- allow
+- catalog
+- describe_dataset
+- restricted_data

@@ -2,9 +2,9 @@
   "case_id": "allow_list_datasets_catalog",
   "model": "nvidia/nvidia-nemotron-nano-9b-v2",
   "engine_decision": "ALLOW",
-  "engine_matched_rule": "R0-IMPLICIT",
+  "engine_matched_rule": "R11",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to list datasets is allowed because the system's fallback rules permit access when no specific policy applies, and your role allows viewing data in trusted enclaves. Since no sanctioned alternative was specified, the request is already permitted as-is.\n",
+  "response_text": "You are allowed to see the list of datasets available in the governed enclave. The decision is based on the principle that knowing dataset metadata\u2014like column names and structure\u2014does not reveal sensitive data itself. Since no sanctioned alternative is provided, your request is already permitted under the current policy.\n",
   "redirect_chosen": null
 }

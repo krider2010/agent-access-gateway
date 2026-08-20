@@ -28,18 +28,23 @@
  * decision reads, the sink it is recorded to, and the rows it governs. Three trust boundaries
  * on one listener.
  *
- * So: their own port, bound to loopback, with 4301 deliberately absent from the sandbox
- * allowlist. The agent's inability to write the audit log is then structural, not a matter of
- * trust. `install.sh` asserts the refusal on every run.
+ * So: their own port, bound as narrowly as the n8n container allows, with 4301 deliberately
+ * absent from the sandbox allowlist. The refusal rests on that omission rather than on the bind
+ * address, so the agent's inability to write the audit log is structural rather than a matter
+ * of trust. `install.sh` asserts it on every run.
  *
  * The data plane is here for the same reason, plus one more. `R2` admits aggregates over
  * restricted data, which only means something if the aggregate is computed where the caller
  * cannot reach: a GROUP BY in the agent's own process would have held every row first. So the
  * rows and the counting stay on this side, and only the counts cross back.
  *
- * Loopback costs nothing: n8n runs in a container and reaches the host through
- * `host.docker.internal`, which resolves to the host's loopback. Binding 127.0.0.1 keeps the
- * service off every other interface and still reachable by its only client.
+ * BIND AS NARROWLY AS THE ONE CLIENT ALLOWS, which is not the same address everywhere. n8n
+ * runs in a container and reaches the host through `host.docker.internal`. On Docker Desktop
+ * and OrbStack that name NATs to the host's loopback, so 127.0.0.1 is enough. On Docker Engine
+ * for Linux it is the docker bridge gateway, so loopback answers nothing and the container gets
+ * ECONNREFUSED. `--host` therefore takes a list, and gateway/scripts/services.sh adds the
+ * bridge gateway on Linux. Not the wildcard: 0.0.0.0 would put the audit sink and the data
+ * plane on every interface the machine has, and on a shared box that is a route in.
  *
  * WHY THE POLICY IS SERVED AS JSON. An n8n Code node has no YAML library, so the conversion
  * happens here. access_policy.yaml stays the single source of truth; only the encoding in
@@ -1460,12 +1465,12 @@ function createGatewayServer() {
   });
 }
 
-const USAGE = 'usage: gateway_services.js [--host 127.0.0.1] [--port 4301]\n'
-  + '  --host  bind address; keep it loopback so only the host and its containers can reach it\n'
+const USAGE = 'usage: gateway_services.js [--host 127.0.0.1[,addr...]] [--port 4301]\n'
+  + '  --host  bind addresses, comma-separated; keep them as narrow as the n8n container needs\n'
   + '  --port  default 4301, which policy/sandbox_policy.yaml deliberately does not open';
 
 function parseArgs(argv) {
-  const args = { host: '127.0.0.1', port: 4301 };
+  const args = { hosts: ['127.0.0.1'], port: 4301 };
   let i = 0;
   while (i < argv.length) {
     const token = argv[i];
@@ -1488,7 +1493,11 @@ function parseArgs(argv) {
       process.exit(2);
     }
     if (flag === '--host') {
-      args.host = value;
+      args.hosts = value.split(',').map((h) => h.trim()).filter(Boolean);
+      if (!args.hosts.length) {
+        warn(`--host needs at least one address\n${USAGE}`);
+        process.exit(2);
+      }
     } else {
       args.port = parseIntStrict(value);
       if (args.port === null) {
@@ -1503,11 +1512,16 @@ function parseArgs(argv) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  if (!['127.0.0.1', 'localhost', '::1'].includes(args.host)) {
-    warn(
-      `WARNING: binding ${args.host} exposes the audit sink beyond loopback. The agent must `
-      + 'not be able to reach this port — see the header comment.',
-    );
+  for (const host of args.hosts) {
+    if (['0.0.0.0', '::'].includes(host)) {
+      warn(
+        `WARNING: binding ${host} puts the audit sink and the data plane on every interface `
+        + 'this machine has. The agent must not be able to reach this port — see the header '
+        + 'comment. Bind the docker bridge gateway instead of the wildcard.',
+      );
+    } else if (!['127.0.0.1', 'localhost', '::1'].includes(host)) {
+      warn(`NOTE: ${host} is not loopback, so anything on that interface can reach this port.`);
+    }
   }
 
   const missing = [POLICY_PATH, CATALOG_PATH, PROMPTS_PATH].filter((p) => !fs.existsSync(p));
@@ -1516,17 +1530,24 @@ function main() {
   process.stdout.write(`[gateway-services] policy   : ${POLICY_PATH}\n`);
   process.stdout.write(`[gateway-services] catalog  : ${CATALOG_PATH}\n`);
   process.stdout.write(`[gateway-services] audit    : ${AUDIT_PATH}\n`);
-  process.stdout.write(`[gateway-services] listening: http://${args.host}:${args.port}\n`);
+  for (const host of args.hosts) {
+    process.stdout.write(`[gateway-services] listening: http://${host}:${args.port}\n`);
+  }
   process.stdout.write(
     '[gateway-services] reachable from the n8n container as host.docker.internal\n',
   );
 
-  const server = createGatewayServer();
-  server.on('error', (err) => {
-    warn(`could not listen on ${args.host}:${args.port} — ${err.message}`);
-    process.exit(1);
-  });
-  server.listen(args.port, args.host);
+  // One server per address rather than the wildcard, so the port stays off every interface
+  // nothing asks for. Any one of them failing to bind is fatal: a service that came up on
+  // loopback alone would serve the host checks and leave n8n with a connection error.
+  for (const host of args.hosts) {
+    const server = createGatewayServer();
+    server.on('error', (err) => {
+      warn(`could not listen on ${host}:${args.port} — ${err.message}`);
+      process.exit(1);
+    });
+    server.listen(args.port, host);
+  }
 }
 
 if (require.main === module) main();

@@ -252,7 +252,7 @@ later means acting on a record that already exists rather than retrofitting the 
 
 ## 9. Stage 6 on the wire
 
-`POST /data/execute` on `127.0.0.1:4301`, served by
+`POST /data/execute` on port `4301`, served by
 [../gateway/gateway_services.js](../gateway/gateway_services.js). The body is the
 `ResolvedRequest` of §2 plus `decision` and `matched_rule` from the `Verdict` of §5:
 those ten keys, validated strictly in both directions. A missing key means the body is not

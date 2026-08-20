@@ -138,7 +138,7 @@ nothing left to do but stamp a tool name, which the front door does with a liter
    the last step of every build. That closes it to everything on the host rather than just to
    this sandbox.
 4. The gateway fetches the policy, the dataset catalog and the prompts from the host service on
-   `127.0.0.1:4301`, at request time rather than baked in.
+   port `4301`, at request time rather than baked in.
 5. It resolves identity, classification, residency, provenance and destination into the
    canonical request, then evaluates the policy. Two of those fields are *derived* rather than
    accepted: the actor comes from the session, and the scope comes from the tool and its

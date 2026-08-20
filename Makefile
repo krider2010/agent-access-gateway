@@ -81,7 +81,7 @@ n8n-mcp-off: ## Disable it again (isolate.sh already does this as its last step)
 n8n-mcp-status: ## Is the management API answering, and is the front door reachable?
 	bash n8n/scripts/mcp_access.sh status
 
-services: ## Start the gateway's policy, audit and data service on 127.0.0.1:4301
+services: ## Start the gateway's policy, audit and data service on port 4301
 	bash gateway/scripts/services.sh
 
 # --- sandbox -------------------------------------------------------------------

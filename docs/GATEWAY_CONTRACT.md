@@ -327,8 +327,21 @@ the data plane reproduces a cohort by size rather than by predicate. Both follow
 carrying eight fields; changing either means changing the `ResolvedRequest`, not working
 around it here.
 
-**The pre-flight profile is still open.** §4 requires `record_count` and
-`min_cell_count` to be measured inside the enclave before the verdict. This build
-resolves them from the tool arguments, so an aggregate reply carries a `profile_check`
-block holding the declared figures, the measured ones and whether they agree. Reporting
-both is not a fix for that gap; it is how the gap stays legible until someone closes it.
+**The pre-flight profile is measured after the verdict, not before it, and an overstated one is
+refused.** §4 requires `record_count` and `min_cell_count` to be measured inside the enclave
+before the verdict. This build resolves them from the tool arguments and checks them against the
+data once the query runs. Overstating either figure is what buys a verdict the data does not
+support: a cohort claimed larger than it is clears `R8`'s floor, and a smallest cell claimed
+larger than it is clears `R10`'s. Both are refused with a 403 naming the declared figure and the
+measured one. Understating can only have made the decision stricter, so it is served, and the
+reply's `profile_check` block still carries both numbers.
+
+**What that does and does not close.** The verdict is still reached on the caller's claim, so
+the audit record can name a rule that was applied to a figure the data contradicts. What changes
+is that the result does not come back. It also does not touch the differencing attack in
+`EVALS.md` §8, where both requests declare honestly.
+
+One limit travels with it. `record_count` arrives without the filter that produced it, so the
+cells measured here are those of *a* cohort of that size and not of the caller's. An honest
+caller whose filter selects different rows can therefore be refused, which is the direction this
+fails in.

@@ -278,7 +278,7 @@ for a model running live, which is what tips the choice to Nano.
 
 ## 6. n8n wiring: settled against the live instance
 
-All verified by reading n8n 2.32.7 in the running container rather than from documentation.
+All verified by reading n8n 2.35.5 in the running container rather than from documentation.
 
 **Use `@n8n/n8n-nodes-langchain.lmChatNvidia` (v1).** It exists, it's first-party, and it
 takes a dedicated **`nvidiaApi`** credential. The credential is created through n8n's own
@@ -352,7 +352,7 @@ Agent node, so we likely never meet it. Recognise it if it appears.
 
 ## 9. Verification status
 
-Resolved against the live n8n 2.32.7 container:
+Resolved against the live n8n 2.35.5 container:
 
 - ✅ Nano-30B-A3B ID is `nvidia/nemotron-3-nano-30b-a3b`.
 - ✅ `lmChatNvidia` exists, v1, credential type `nvidiaApi` with a Base URL field

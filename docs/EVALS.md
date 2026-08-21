@@ -157,8 +157,8 @@ mean budget; it is deliberating at length before committing.
 
 ## 3.1 Layer 3: the whole path, measured
 
-Run on 2026-08-19 after `R11` landed, all 39 cases out through the MCP Server Trigger and back
-through the decision workflow and the data plane. From `eval/results/e2e/summary.json`.
+Run on 2026-08-20, all 39 cases out through the MCP Server Trigger and back through the decision
+workflow and the data plane. From `eval/results/e2e/summary.json`.
 
 | | Result |
 |---|---|
@@ -167,8 +167,8 @@ through the decision workflow and the data plane. From `eval/results/e2e/summary
 | Exactly one audit record per call | **yes, 0 wrong** |
 | ALLOWs that returned a real result | **15 / 15** |
 | Alternatives invented that policy did not authorise | **0** |
-| Wall clock p50 | **1822 ms** |
-| Wall clock p95 | **9382 ms**, and see the warning below |
+| Wall clock p50 | **1517 ms** |
+| Wall clock p95 | **2082 ms**, and see the warning below |
 
 Every figure in that table is a field of `eval/results/e2e/summary.json`, so it is one
 `cat` away from being re-checked, and it changes whenever the harness is re-run. The fields are
@@ -181,9 +181,9 @@ MCP round trip, three HTTP fetches inside the workflow (the policy, the catalog 
 prompts, each a GET to `:4301`), the model call, the audit write and, on an ALLOW, the data
 plane. §3's figures are the model call alone and are roughly a third to a half of this.
 
-**Do not quote the p95 as a single number.** Four runs of this harness, three on 2026-08-13
-against an unchanged gateway and one on 2026-08-19, gave p95 figures of **2596, 3105, 4748 and
-9382 ms**, a 3.6× spread. The p50 moved far less, 1398 to 1822. In the 2026-08-19 run two cases
+**Do not quote the p95 as a single number.** Five runs of this harness against a gateway whose
+decision path did not change gave p95 figures of **2596, 3105, 4748, 9382 and 2082 ms**, a 4.5×
+spread. The p50 moved far less, 1398 to 1822. The 9382 run is the instructive one: two cases
 carried the whole tail, at 10021 and 9382 ms, with the other 37 under 3.1 seconds. Which two is
 noise rather than a finding: they share no rule, no tool and no data-plane path, and a different
 pair will be slow next run. The cause is not the gateway. The model call dominates each
@@ -459,7 +459,13 @@ requester chose.
 
 That second gap is what the pre-flight profile addresses. See `GATEWAY_CONTRACT.md` §4:
 `record_count` and `min_cell_count` are supposed to be measured inside the enclave before the
-decision, and today they arrive as arguments.
+decision, and they arrive as arguments instead. The data plane measures them after the query and
+refuses an overstated declaration, so the floor cannot be cleared by claiming a cohort or a
+smallest cell larger than the data holds.
+
+**That does not touch the attack described here.** Both requests above declare honestly, clear
+every control, and are correctly allowed. The refusal closes the crude route past the floor; this
+section is the one that needs two queries and a subtraction.
 
 ### Measured: could the model catch it? Three arms, 2026-08-13
 

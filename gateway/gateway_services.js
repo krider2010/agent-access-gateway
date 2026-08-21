@@ -439,6 +439,58 @@ function measuresFor(rows, dataset) {
 }
 
 /**
+ * Refuse an aggregate whose declared profile the enclave cannot corroborate.
+ *
+ * R8 tests `record_count` and R10 tests `min_cell_count`, and both reach the gateway from the
+ * caller's own arguments, per docs/GATEWAY_CONTRACT.md §4. So the verdict can be reached on a
+ * lie, and this stops the lie being paid out.
+ *
+ * One direction only. Overstating either figure clears a floor the data does not clear.
+ * Understating can only make the decision stricter, so it is served and reported instead.
+ *
+ * One limit: `record_count` arrives without the filter that produced it, so the cells measured
+ * here are those of *a* cohort of that size and not of the caller's. An honest caller can
+ * therefore be refused, which is the direction this fails in.
+ */
+function verifyProfile(request, dataset, rowCount, measuredMin, groupBy) {
+  const num = (v) => (v === null || v === undefined ? null : Math.trunc(v));
+  const declaredCount = num(request.record_count);
+  const declaredMin = num(request.min_cell_count);
+
+  if (declaredCount !== null && declaredCount > rowCount) {
+    warn(
+      `REFUSED /data/execute: declared cohort ${declaredCount} exceeds the ${rowCount} rows `
+      + `${dataset.id} holds. actor=${repr(request.actor)} tool=${repr(request.tool)}`,
+    );
+    throw new DataPlaneError(
+      403,
+      `this request declares a cohort of ${declaredCount} records, but ${dataset.id} holds `
+      + `${rowCount}. R8 tests the declared figure against the k-anonymity floor, so a cohort `
+      + 'claimed larger than the data can supply would clear a floor it does not clear. The '
+      + 'verdict was reached on the declaration; the result is refused here. See '
+      + 'docs/GATEWAY_CONTRACT.md §4.',
+    );
+  }
+
+  if (declaredMin !== null && declaredMin > measuredMin) {
+    const grouping = groupBy.length ? `by ${reprList(groupBy)}` : 'with no GROUP BY';
+    warn(
+      `REFUSED /data/execute: declared smallest cell ${declaredMin} exceeds the measured `
+      + `${measuredMin} grouping ${grouping}. actor=${repr(request.actor)} `
+      + `resource=${repr(request.resource)}`,
+    );
+    throw new DataPlaneError(
+      403,
+      `this request declares a smallest group of ${declaredMin}, but grouping the declared `
+      + `cohort ${grouping} gives ${measuredMin}. R10 tests the declared figure, so a cell `
+      + 'claimed larger than it is would clear the floor on a grouping that returns groups of '
+      + `${measuredMin}. The verdict was reached on the declaration; the result is refused `
+      + 'here. See docs/GATEWAY_CONTRACT.md §4.',
+    );
+  }
+}
+
+/**
  * A real GROUP BY over the generated rows, returning measured cell counts.
  *
  * Handles the two shapes a groupable column can have. `LightingCondition` is a stored key and
@@ -527,6 +579,8 @@ function runAggregate(request, dataset) {
   const cells = groups.length ? groups.map((g) => Math.trunc(g.record_count)) : [0];
   const measuredMin = Math.min(...cells);
 
+  verifyProfile(request, dataset, rows.length, measuredMin, groupBy);
+
   const declaredMin = request.min_cell_count;
   const declaredCount = request.record_count;
   return {
@@ -543,11 +597,11 @@ function runAggregate(request, dataset) {
     min_cell_count: measuredMin,
     max_cell_count: Math.max(...cells),
     groups,
-    // The gateway decided on numbers the caller supplied; these are the numbers the data
-    // holds. Reported side by side rather than reconciled: docs/GATEWAY_CONTRACT.md §4 says
-    // the profile ought to be measured in the enclave pre-decision, and this build takes it
-    // from the tool arguments instead. The gap is the caller's own claim about the sensitivity
-    // of the caller's own request, and printing both numbers keeps it visible.
+    // The gateway decided on numbers the caller supplied; these are the numbers the data holds.
+    // Reaching here means verifyProfile found no overstatement, so what remains is an
+    // under-declaration, which can only have made the verdict stricter. Both are printed
+    // because the gap is still there: §4 wants the profile measured pre-decision, and this
+    // build measures it post-decision and refuses rather than reconciling.
     profile_check: {
       declared_record_count: declaredCount,
       declared_min_cell_count: declaredMin,
@@ -555,10 +609,11 @@ function runAggregate(request, dataset) {
       agrees: declaredMin !== null && declaredMin !== undefined
         && Math.trunc(declaredMin) === measuredMin,
       note:
-        'The verdict was reached on the declared figures. These are the measured '
-        + 'ones. docs/GATEWAY_CONTRACT.md §4 requires the profile to be measured '
-        + 'pre-decision inside the enclave; this build resolves it from the tool '
-        + 'arguments, so the two can differ and both are shown.',
+        'The verdict was reached on the declared figures; these are the measured ones. '
+        + 'An overstated profile is refused rather than served, so a difference here is '
+        + 'the caller having claimed less than the data holds, which can only have made '
+        + 'the decision stricter. docs/GATEWAY_CONTRACT.md §4 still wants the profile '
+        + 'measured before the verdict rather than after it.',
     },
   };
 }

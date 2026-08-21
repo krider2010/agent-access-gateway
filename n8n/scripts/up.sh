@@ -24,7 +24,7 @@ N8N_PORT="${N8N_PORT:-5678}"
 # scripts use the publish/draft workflow model introduced in n8n 2.22, so the
 # pin also documents the minimum this repo expects. Bump as new stables ship:
 # https://hub.docker.com/r/n8nio/n8n/tags
-N8N_VERSION="${N8N_VERSION:-2.32.7}"
+N8N_VERSION="${N8N_VERSION:-2.35.5}"
 N8N_IMAGE="docker.n8n.io/n8nio/n8n:${N8N_VERSION}"
 
 # Already have this container? Make sure it is running and stop here;

@@ -18,8 +18,8 @@ Division of labour (mirrors policy/access_policy.yaml's own framing):
     ships instead; see docs/EVALS.md for why this is not optional polish.
 
 Usage:
-    python3 run_eval.py --model nvidia/nvidia-nemotron-nano-9b-v2 \
-                         --model nvidia/nemotron-3-nano-30b-a3b \
+    python3 run_eval.py --model nvidia/nemotron-3-nano-30b-a3b \
+                         --model nvidia/nemotron-3-super-120b-a12b \
                          --out results --write-golden
 
 Reads INFERENCE_API_KEY / INFERENCE_BASE_URL from the repo-root .env.
@@ -801,7 +801,7 @@ def load_cases(queries_dir: Path) -> list[dict[str, Any]]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--model", action="append", required=True, dest="models",
-                     help="Model id, repeatable. e.g. --model nvidia/nvidia-nemotron-nano-9b-v2")
+                     help="Model id, repeatable. e.g. --model nvidia/nemotron-3-nano-30b-a3b")
     ap.add_argument("--out", default=str(EVAL_DIR / "results"),
                      help="Base output directory (default: eval/results)")
     ap.add_argument("--queries-dir", default=str(EVAL_DIR / "queries"))

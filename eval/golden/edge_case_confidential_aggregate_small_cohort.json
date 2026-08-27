@@ -1,10 +1,10 @@
 {
   "case_id": "edge_case_confidential_aggregate_small_cohort",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to break down infra spend by cost centre is allowed because the resource's classification and destination fall within the trusted scope of your role, as determined by the system's fallback rules. Since no specific restrictions apply here, you can proceed with the query. There is no sanctioned alternative for this request, as it is already permitted under the current setup.\n",
+  "response_text": "Your request is allowed. It is permitted because the finance.infra_spend_fy26q3 resource is classified as CONFIDENTIAL, which falls within the access level of your role, and the target enclave\u202fgoverned is trusted. Consequently, the system falls back to the implicit\u2011allow rule.",
   "redirect_chosen": null
 }

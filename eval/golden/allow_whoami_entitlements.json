@@ -1,10 +1,10 @@
 {
   "case_id": "allow_whoami_entitlements",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is allowed because the system's implicit rules permit access when no specific policy governs the action and the destination is trusted. Since no sanctioned alternative is provided, I cannot suggest an alternative action.\n",
+  "response_text": "The system has decided that your request is allowed.  \nThis is because the target resource has no classification and the enclave you are accessing is trusted, so the engine falls back to the implicit allow rule.  \nThere is no alternative needed; the request is already permitted.",
   "redirect_chosen": null
 }

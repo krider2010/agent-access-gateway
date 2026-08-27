@@ -283,7 +283,7 @@ return [{
     output: [{
       verdict: { decision: 'DENY', matched_rule: 'R1', rationale: '...', redirects: ['train_in_place'] },
       request: { actor: 'lena.fischer', tool: 'request_export', scope_mode: 'records' },
-      policy_model: 'nvidia/nvidia-nemotron-nano-9b-v2',
+      policy_model: '@@POLICY_MODEL@@',
       system_prompt: '...',
       user_prompt: '...',
       started_at: 0,

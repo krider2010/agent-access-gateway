@@ -1,6 +1,6 @@
 {
   "case_id": "beat4e_publish_weights_registry",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R7",
   "redirects_offered": [
@@ -8,6 +8,6 @@
     "register_in_enclave"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because weights trained in the enclave with restricted data cannot be shared externally, as they retain the residency constraints of their training data. This ensures compliance with data residency policies. There is no sanctioned alternative available for this request.\n",
+  "response_text": "The request to publish the trained model to the global registry is denied. This is because weights trained on restricted data inherit a residency constraint, so the resulting artifact is treated as restricted even without containing raw footage. Instead, you can keep the weights in the enclave and share only the evaluation metrics.",
   "redirect_chosen": null
 }

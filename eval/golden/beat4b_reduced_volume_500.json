@@ -1,6 +1,6 @@
 {
   "case_id": "beat4b_reduced_volume_500",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R1",
   "redirects_offered": [
@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request to export 500 clips to your laptop is denied because the footage contains identifiable people filmed in public without permission, and copying it to an uncontrolled destination violates our policies. If you need this data, you can train inside the governed enclave using the footage directly where it resides.\n",
+  "response_text": "Your request to export 500 clips to your laptop is denied because the footage contains identifiable people and cannot be copied outside the governed enclave. The sanctioned alternative is to train the model inside the enclave where the data resides, without moving it elsewhere. This keeps the data within the controlled environment required by policy.",
   "redirect_chosen": "train_in_place"
 }

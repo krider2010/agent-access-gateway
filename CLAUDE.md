@@ -54,7 +54,7 @@ Every figure comes from a file in `eval/results/`, never from memory. If a numbe
 sourced, say so instead of quoting it.
 
 Two figures are known unstable and must not be quoted as single values: the end-to-end p95
-(five runs gave 2596, 3105, 4748, 9382 and 2082 ms) and any latency for the 120B, which moved
+(seven runs gave 2596, 3105, 4748, 9382, 2082, 5106 and 5830 ms) and any latency for the 120B, which moved
 tenfold within a day on a shared endpoint. Token counts and truncation rates are stable.
 
 Quotations of model output are artefacts of a dated run. Never edit one to match current

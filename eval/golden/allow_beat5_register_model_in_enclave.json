@@ -1,10 +1,10 @@
 {
   "case_id": "allow_beat5_register_model_in_enclave",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to register the improved pedestrian model within the enclave is allowed because the resource's classification and the trusted destination meet the necessary criteria, even though no specific policy rule applies. Since there is no sanctioned alternative provided, the action is permitted as is.\n",
+  "response_text": "Your request to publish the improved pedestrian model to the governed enclave is approved. It is allowed because the model\u2019s CONFIDENTIAL classification is at or below your role ceiling and the destination is a trusted enclave, triggering the implicit fallback that permits the action.",
   "redirect_chosen": null
 }

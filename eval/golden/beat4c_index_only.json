@@ -1,6 +1,6 @@
 {
   "case_id": "beat4c_index_only",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R1",
   "redirects_offered": [
@@ -8,6 +8,6 @@
     "use_redacted_set"
   ],
   "answer_source": "model",
-  "response_text": "The request is denied because the footage contains identifiable individuals filmed in public without permission, and transferring it to an uncontrolled destination violates our data governance rules. If you need this data, you can train inside the governed enclave using the data where it resides.\n",
+  "response_text": "Your request to export the annotated clip indices to an external workstation is denied because the footage contains identifiable people and cannot be copied outside the governed enclave. The policy requires that any processing of this data remain within the enclave where it is stored. Instead, you can train your models inside the governed enclave using the data where it resides.",
   "redirect_chosen": "train_in_place"
 }

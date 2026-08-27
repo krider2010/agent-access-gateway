@@ -30,7 +30,7 @@ Quoting arm B's rate without arm A's would imply the shipped gateway catches thi
 not, and it is not trying to. Quoting it without arm C's would imply the reviewer can tell
 the difference, which is the thing arm C is there to establish.
 
-    .venv-eval/bin/python eval/differencing_check.py --model nvidia/nvidia-nemotron-nano-9b-v2
+    .venv-eval/bin/python eval/differencing_check.py --model nvidia/nemotron-3-nano-30b-a3b
     .venv-eval/bin/python eval/differencing_check.py --model ... --repeats 20
 
 Repeats matter because one run is not a measurement. `EVALS.md` §7 records a clean case of

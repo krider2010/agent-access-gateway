@@ -47,7 +47,7 @@ user_prompt_template: |-
 # The policy brain, named once. build.js substitutes it into both places gateway-decide.ts needs
 # it: the model node's parameter, and the constant the audit record reports. It must have a
 # model_directives entry below or the build fails. Chosen on docs/MODEL_STRATEGY.md section 4d.
-policy_model: nvidia/nvidia-nemotron-nano-9b-v2
+policy_model: nvidia/nemotron-3-nano-30b-a3b
 
 # Where that model runs, as the audit record reports it. A Code node cannot read a credential, so
 # the base URL a call went to is invisible to it and this is declared rather than derived.
@@ -77,17 +77,24 @@ temperature: 0.2
 # field" for the 120B. Hence `body`, and hence two separate accessors in the harness.
 # -------------------------------------------------------------------------------------------
 model_directives:
+  # RETIRED 2026-08-26: the hosted endpoint returns HTTP 410 for this model. The entry stays as
+  # the dated record behind docs/MODEL_STRATEGY.md section 4d. The build checks only that a
+  # directive exists here, so naming a retired model as policy_model deploys and then fails on
+  # every call.
   # "/no_think" -> clean, 1.17s, 52 tok. The other Nano directive, "detailed thinking off", is
   # about 5x slower here and still emits a trace, so the two are not interchangeable.
   nvidia/nvidia-nemotron-nano-9b-v2:
     directive: /no_think
     max_tokens: 300
 
-  # "detailed thinking off" -> clean, 1.54s, 89 tok. "/no_think" on THIS model leaks its
-  # scratchpad into the visible answer, opening with "We need to produce two sentences...".
+  # "detailed thinking off" -> clean prose. "/no_think" on THIS model leaks its scratchpad
+  # into the visible answer, opening with "We need to produce two sentences...".
+  # The directive moves the reasoning trace into `reasoning_content` rather than stopping it,
+  # and `completion_tokens` bills both. At 300 the visible answer truncates mid-sentence on
+  # 9 of 39 cases. Measured 2026-08-27 at 1024: 0 of 39 at the ceiling, mean 258 tokens.
   nvidia/nemotron-3-nano-30b-a3b:
     directive: detailed thinking off
-    max_tokens: 300
+    max_tokens: 1024
 
   # No directive -> clean, 1.54s, 89 tok. Measured 2026-08-13. This model emits no reasoning
   # trace to suppress, so the empty directive is measured, not an oversight: both control tokens

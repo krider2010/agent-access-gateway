@@ -82,7 +82,7 @@ const requestTrigger = trigger({
 // 4301 because that is the port policy/sandbox_policy.yaml does not open to the agent.
 const fetchPolicy = node({
   type: 'n8n-nodes-base.httpRequest',
-  version: 4.4,
+  version: 4.5,
   config: {
     name: 'Fetch Access Policy',
     parameters: { method: 'GET', url: 'http://host.docker.internal:4301/policy' },
@@ -92,7 +92,7 @@ const fetchPolicy = node({
 
 const fetchCatalog = node({
   type: 'n8n-nodes-base.httpRequest',
-  version: 4.4,
+  version: 4.5,
   config: {
     name: 'Fetch Dataset Catalog',
     parameters: { method: 'GET', url: 'http://host.docker.internal:4301/catalog' },
@@ -102,7 +102,7 @@ const fetchCatalog = node({
 
 const fetchPrompts = node({
   type: 'n8n-nodes-base.httpRequest',
-  version: 4.4,
+  version: 4.5,
   config: {
     name: 'Fetch Model Prompts',
     parameters: { method: 'GET', url: 'http://host.docker.internal:4301/prompts' },
@@ -424,7 +424,7 @@ return [{
 // holds whatever the outcome is, including a refusal from the data plane.
 const writeAudit = node({
   type: 'n8n-nodes-base.httpRequest',
-  version: 4.4,
+  version: 4.5,
   config: {
     name: 'Append Audit Record',
     parameters: {
@@ -442,7 +442,7 @@ const writeAudit = node({
 // shape of this node: given a flatter object it becomes an If with no condition, and every
 // decision then leaves by the same branch.
 const allowedOrNot = ifElse({
-  version: 2.2,
+  version: 2.3,
   config: {
     name: 'Allowed?',
     parameters: {
@@ -507,7 +507,7 @@ return [{
 
 const executeInEnclave = node({
   type: 'n8n-nodes-base.httpRequest',
-  version: 4.4,
+  version: 4.5,
   config: {
     name: 'Execute In The Enclave',
     parameters: {

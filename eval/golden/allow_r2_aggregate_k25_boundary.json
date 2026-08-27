@@ -1,12 +1,12 @@
 {
   "case_id": "allow_r2_aggregate_k25_boundary",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R2",
   "redirects_offered": [
     "export_metrics_only"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because counts and distributions over a large set of clips do not involve personal data, as per the policy. Since no sanctioned alternative was provided, the request is fulfilled as is.\n",
+  "response_text": "The request is allowed because the policy treats counts and distributions over a sufficiently large set of night\u2011time pedestrian clips as non\u2011personal data, and such statistics may be exported while the underlying recordings remain protected. Since no sanctioned alternative is provided, the request can proceed as specified.",
   "redirect_chosen": null
 }

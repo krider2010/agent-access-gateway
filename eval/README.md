@@ -63,7 +63,7 @@ deliberately cannot.
 **A full run against one or more models.** One HTTP call per case per model, sequentially.
 
 ```bash
-.venv-eval/bin/python eval/run_eval.py --model nvidia/nvidia-nemotron-nano-9b-v2
+.venv-eval/bin/python eval/run_eval.py --model nvidia/nemotron-3-nano-30b-a3b
 ```
 
 `--model` is repeatable, and each model gets its own output directory.
@@ -72,13 +72,13 @@ deliberately cannot.
 from this run, so later runs can be diffed against it.
 
 ```bash
-.venv-eval/bin/python eval/run_eval.py --model nvidia/nvidia-nemotron-nano-9b-v2 --write-golden
+.venv-eval/bin/python eval/run_eval.py --model nvidia/nemotron-3-nano-30b-a3b --write-golden
 ```
 
 **Re-score an existing run with no API calls at all.**
 
 ```bash
-.venv-eval/bin/python eval/run_eval.py --model nvidia/nvidia-nemotron-nano-9b-v2 --rescore
+.venv-eval/bin/python eval/run_eval.py --model nvidia/nemotron-3-nano-30b-a3b --rescore
 ```
 
 This replays the stored raw model text from `trace.jsonl` through the scoring logic and

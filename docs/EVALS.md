@@ -96,6 +96,9 @@ two differ. Neither run's `eval/results/` directory still exists: today's four-m
 (§4d in [MODEL_STRATEGY.md](MODEL_STRATEGY.md)) reused those paths. The figures are kept
 because they are legitimate history and a dated measurement does not stop being one when its
 working files are gone, but read them as a record rather than as something you can open.
+`nano-9b-v2` reached end of life on 2026-08-26 and the hosted endpoint returns HTTP 410 for it.
+The policy brain is `nano-30b-a3b`, at a 1024-token ceiling rather than the 300 used here; see
+[MODEL_STRATEGY.md](MODEL_STRATEGY.md) §5.
 
 | | `nano-9b-v2` (`/no_think`) | `nano-30b-a3b` (`detailed thinking off`) |
 |---|---|---|

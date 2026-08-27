@@ -1,12 +1,12 @@
 {
   "case_id": "gap_training_job_spark_local",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R5",
   "redirects_offered": [
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because the training job will run directly on the Spark cluster where the data resides, aligning with the principle of keeping computation close to the data for efficiency. This approach ensures evaluation metrics are computed locally, reducing latency and resource transfer overhead.  \n\nThere is no sanctioned alternative for this request, as the decision to allow direct execution on Spark is final.\n",
+  "response_text": "Your request is approved. The policy requires that the computation run where the data resides, so the training job will be executed directly on the Spark cluster that holds the `fleet.night_clips_annotated` dataset. This keeps the data local and returns only the evaluation metrics.",
   "redirect_chosen": "train_in_place"
 }

@@ -1,12 +1,12 @@
 {
   "case_id": "allow_r2_aggregate_lighting_distribution",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R2",
   "redirects_offered": [
     "export_metrics_only"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because it involves querying aggregated statistics about non-personal data, specifically lighting breakdowns and cluster health metrics, which do not pose privacy risks. The decision aligns with the policy allowing such statistical analyses. There is no sanctioned alternative in this case.\n",
+  "response_text": "The request is allowed. The system determined that querying the aggregate statistics of the annotated night\u2011clip fleet does not involve personal data, so the counts and distributions can be shared. Therefore you can proceed with the query and retrieve the lighting breakdown.",
   "redirect_chosen": null
 }

@@ -1,10 +1,10 @@
 {
   "case_id": "deny_r4_external_gist_redacted",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R4",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request to push the redacted research set to an external GitHub gist is denied because egress destinations must be explicitly allowlisted, and GitHub gists are not on the approved list. This ensures compliance with data-access policies that restrict transfers to unlisted external hosts.  \n\nThere is no sanctioned alternative available for this request.\n",
+  "response_text": "Your request to export the redacted research set to an external GitHub Gist has been denied. The policy only permits egress to hosts that are on the allowlist, and GitHub Gist is not listed, so the default deny rule applies. There is no sanctioned alternative available for this request.",
   "redirect_chosen": null
 }

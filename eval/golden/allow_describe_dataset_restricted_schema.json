@@ -1,10 +1,10 @@
 {
   "case_id": "allow_describe_dataset_restricted_schema",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R11",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is allowed because it asks for metadata about the dataset, such as column names and structure, which helps engineers understand what data is available without exposing actual records. This aligns with the policy that permits describing datasets to support lawful access planning. Since no sanctioned alternative is provided, the request is valid as is.\n",
+  "response_text": "The request to describe the fields of\u202ffleet.night_clips_annotated\u202fis allowed.\u202fThe schema \u2014 including column names, classifications, residency, owner and volume \u2014 only reveals how the dataset is structured, which is permissible under rule\u202fR11.\u202fTherefore you may proceed to query the catalog for its column list.",
   "redirect_chosen": null
 }

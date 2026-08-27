@@ -1,10 +1,10 @@
 {
   "case_id": "deny_r6_role_ceiling_restricted_metadata_enclave",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R6",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "Your request to browse the clip index of the annotated set is denied because your role as an ml_engineer restricts access to restricted data to either aggregated views or in-place computations, not direct browsing. This ensures data security and compliance with defined access policies.\n",
+  "response_text": "Your request to browse the clip index of the annotated set is denied. Read access for an\u202fml_engineer is limited to aggregated data or in\u2011place computation, and the annotated set is classified as restricted data that cannot be accessed directly for metadata browsing.",
   "redirect_chosen": null
 }

@@ -1,10 +1,10 @@
 {
   "case_id": "deny_r6_role_ceiling_restricted_records_enclave",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "DENY",
   "engine_matched_rule": "R6",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is denied because your role as an ml_engineer only allows access to restricted data in specific ways, such as through aggregated data or in-place computation, not direct access to raw records. There is no sanctioned alternative available for this request.\n",
+  "response_text": "Your request to read the raw annotated clips directly in the enclave is denied. The policy caps read access for an\u202fml_engineer to aggregated data or in\u2011place computation, not to the full set of raw records. Consequently, you cannot retrieve the 48,217 annotated clips directly as requested.",
   "redirect_chosen": null
 }

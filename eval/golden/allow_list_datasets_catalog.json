@@ -1,10 +1,10 @@
 {
   "case_id": "allow_list_datasets_catalog",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R11",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "You are allowed to see the list of datasets available in the governed enclave. The decision is based on the principle that knowing dataset metadata\u2014like column names and structure\u2014does not reveal sensitive data itself. Since no sanctioned alternative is provided, your request is already permitted under the current policy.\n",
+  "response_text": "The request is allowed because the policy treats knowing a dataset\u2019s schema \u2014 such as the existence of a column named\u202fGpsLatitude \u2014 as permissible information about the dataset\u2019s structure rather than disclosure of its contents. This aligns with rule\u202fR11, which permits engineers to learn column names, classifications, residency, owner and volume details to determine lawful future requests. Consequently, you may proceed to list the datasets you\u2019re interested in.",
   "redirect_chosen": null
 }

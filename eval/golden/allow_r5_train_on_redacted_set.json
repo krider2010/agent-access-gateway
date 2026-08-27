@@ -1,12 +1,12 @@
 {
   "case_id": "allow_r5_train_on_redacted_set",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R5",
   "redirects_offered": [
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because it aligns with the principle of keeping computations where the data resides, ensuring efficiency and security. Since the decision is ALLOW, there is no sanctioned alternative to suggest.\n",
-  "redirect_chosen": null
+  "response_text": "Your request is approved. The training job will run inside the enclave where the redacted clips are stored, so the data never leaves the secure environment, and the resulting metrics will be returned to you. This follows the policy that processing must occur where the data resides.",
+  "redirect_chosen": "train_in_place"
 }

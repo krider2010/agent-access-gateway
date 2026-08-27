@@ -1,10 +1,10 @@
 {
   "case_id": "allow_clip_catalog_metadata_read",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is allowed because the resource is classified as internal and the destination is a trusted enclave, which falls within the permissions of your role. This decision is based on a system-level fallback rule rather than a specific policy. Since there is no sanctioned alternative provided, the request cannot be modified or redirected.\n",
+  "response_text": "Your request has been approved. The system allowed it because the clip_catalog is classified as INTERNAL, which falls within your role\u2019s ceiling, and the target enclave is trusted. No alternative action is needed because the request is already permitted.",
   "redirect_chosen": null
 }

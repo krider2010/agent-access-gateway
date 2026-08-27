@@ -242,14 +242,15 @@ choosing a model whose numbers hold still.
 §4d is the evidence for the policy brain: four models across the current 37-case set, on one
 day, with the suppression mechanism measured per model.
 
-- **Policy brain: `nvidia/nvidia-nemotron-nano-9b-v2` with a `/no_think` system
-  directive.** §4d is the case for it and §4c is where it started. Zero ceiling hits, zero
-  fallbacks and zero call failures over 37 cases, against 7 fallbacks for the 30B and 27 for
-  the 8B. The 9B did that on a quarter of the 30B's tokens, and with the only latency in the
-  table that held still across two dated runs. Dense, so simpler to debug live than an MoE; documented
-  tool-call parser; and NVIDIA ships a DGX-Spark-specific NIM container, albeit in
-  `nvstaging`. The 30B remains the better raw Spark throughput number, which matters for the
-  agent brain and not for this role.
+- **Policy brain: `nvidia/nemotron-3-nano-30b-a3b` with a `detailed thinking off` system
+  directive.** `nvidia-nemotron-nano-9b-v2` held the role until it reached end of life on
+  2026-08-26; the hosted endpoint returns HTTP 410 for it, and no smaller Nemotron is served
+  for this role. `detailed thinking off` moves the reasoning trace into `reasoning_content`
+  rather than stopping it, and `completion_tokens` bills both, so `max_tokens` is 1024. §4d
+  records 7 fallbacks for this model at a 300-token ceiling; at 1024, measured 2026-08-27
+  over 39 cases, there are zero ceiling hits, zero fallbacks and zero call failures, at a
+  mean of 258 output tokens. `/no_think` is the wrong directive here: on this model it leaks
+  the scratchpad into the visible answer.
 - **Agent brain: `nvidia/nemotron-3-super-120b-a12b`**, hosted for Phase 1. Roughly 4–5×
   less bandwidth per token than Ultra-550B, same GTC-2026 family so the narrative stays
   coherent. If live timing gets tight, fall back to Nano-30B-A3B for both roles: a less
@@ -330,13 +331,27 @@ Agent node, so we likely never meet it. Recognise it if it appears.
 
 ## 7. Self-hosting path (Phase 6)
 
-- Nano 9B v2: `nvcr.io/nvstaging/nim/nvidia-nemotron-nano-9b-v2-dgx-spark:1.0.0-variant` ✅
-  (`nvstaging` = preview; budget validation time)
+✅ marks what the vendor sources settle; ⬜ marks what running on the box has to establish.
+
+- **Policy brain NIM: `nvcr.io/nim/nvidia/nemotron-3-nano:latest`.** Use that tag. The longer
+  `nvcr.io/nim/nvidia/nemotron-3-nano-30b-a3b:latest` answers `DENIED: Access Denied`, because
+  that path does not exist. ✅
+- **Policy brain NVFP4 weights: `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4`.** Its card
+  lists DGX Spark among the platforms inference is tested on. Attention layers and the Mamba
+  layers feeding them stay in BF16, with the KV cache at FP8, so the footprint sits above a
+  uniform four-bit 30B. Unmeasured here. ⬜
+- **That checkpoint needs vLLM 0.12.0 or later with `VLLM_USE_FLASHINFER_MOE_FP4=1`**, and
+  vLLM below `25.12.post1` does not serve this model at all. TensorRT-LLM uses `nano_v3.yaml`
+  with `trtllm-serve <path> --backend _autodeploy --reasoning_parser nano-v3`. ⬜
+- **The reasoning parser sets the `reasoning_content` split on the box.** Confirm the gateway
+  still reads clean prose and that no trace reaches the audit record. ⬜
 - Super-120B-A12B: `nvcr.io/nim/nvidia/nemotron-3-super-120b-a12b-turbo:1.0.0`, ARM64
   supported, with an official single-Spark NVFP4 deployment guide ✅
 - General path: `nvcr.io/nvidia/vllm:26.04-py3` or `vllm/vllm-openai:nightly`. Stable
-  PyPI vLLM lacks GB10 support. NVFP4 MoE needs `--moe-backend marlin`. ✅
-- Ollama has an open regression against Nano 9B v2; least mature path. ✅
+  PyPI vLLM lacks GB10 support. NVFP4 MoE needs `--moe-backend marlin`; the policy brain's
+  own checkpoint wants the FlashInfer path above instead. ✅
+- Nano 9B v2, retired 2026-08-26:
+  `nvcr.io/nvstaging/nim/nvidia-nemotron-nano-9b-v2-dgx-spark:1.0.0-variant` ✅
 - Access: NVIDIA Developer Program + a **Personal** NGC API key (legacy keys are
   rejected), plus per-model click-through terms. ✅
 

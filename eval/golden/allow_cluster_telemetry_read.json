@@ -1,10 +1,10 @@
 {
   "case_id": "allow_cluster_telemetry_read",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R0-IMPLICIT",
   "redirects_offered": [],
   "answer_source": "model",
-  "response_text": "The request is allowed because the resource is classified as internal and the destination is a trusted enclave, which falls within your role's permissions. This decision is based on a system-level fallback rule rather than a specific policy. Since no sanctioned alternative is provided, the request cannot be modified or redirected.\n",
+  "response_text": "The request is allowed. It is permitted because the GPU cluster metrics are classified as INTERNAL, which falls within your role\u2019s ceiling, and the target enclave\u202fgoverned is trusted. No sanctioned alternative is provided, so you can proceed with the read.",
   "redirect_chosen": null
 }

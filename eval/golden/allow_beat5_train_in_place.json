@@ -1,12 +1,12 @@
 {
   "case_id": "allow_beat5_train_in_place",
-  "model": "nvidia/nvidia-nemotron-nano-9b-v2",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
   "engine_decision": "ALLOW",
   "engine_matched_rule": "R5",
   "redirects_offered": [
     "train_in_place"
   ],
   "answer_source": "model",
-  "response_text": "The request is allowed because it aligns with the principle of processing data where it resides, ensuring efficiency and security. The fine-tuning job will run within the enclave, and you'll receive the evaluation metrics as a result. There is no sanctioned alternative for this request since it is already permitted under the current policy.\n",
+  "response_text": "Your request is approved. The system will start the training job inside the enclave where the annotated data resides, so the computation stays with the data and the resulting evaluation metrics are returned to you. No external data transfer is needed, and there is no sanctioned alternative to perform this operation.",
   "redirect_chosen": "train_in_place"
 }

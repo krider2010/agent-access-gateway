@@ -57,7 +57,7 @@ model-worded explanation and a sanctioned alternative. An ALLOW runs the data pl
 back with output rather than a placeholder. A `GROUP BY` computed where the rows live, records
 projected to the columns that were asked for, or a training job's evaluation metrics and none
 of its training set. Every call either way writes one audit record to a port the agent cannot reach. All 39
-cases were replayed through the deployed front door on 2026-08-19; all fifteen ALLOWs
+cases were replayed through the deployed front door on 2026-08-27; all fifteen ALLOWs
 returned a result rather than a placeholder, and the figures are in
 [docs/EVALS.md](docs/EVALS.md) §3.1.
 
@@ -74,6 +74,12 @@ implementations agreeing; both sides run the same code. What they measure is eve
 around the decision. Four things: that a tool call resolves to the request the rules expect,
 that the policy is fetched rather than baked in, that exactly one audit record is written per
 call, and that a sanctioned path actually executes.
+
+They do not measure whether the model's explanation is true. The rules make the decision and the
+model words it, so wording is the model's only contribution, and the harness checks that a named
+alternative is one the policy offered rather than that the reason given is correct. A fluent,
+confidently wrong explanation scores full marks. `eval/run_eval.py` prints every answer beside the
+rationale it was given, under "Review" in its report, for a person to read.
 
 ## Getting started
 

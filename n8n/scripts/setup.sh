@@ -59,6 +59,31 @@ done
 [ "${mcp_code:-404}" = "404" ] && \
   echo "⚠ /mcp-server/http still 404 after ~60s — MCP may be unavailable on this n8n version." >&2
 
+# The /rest API mounts after /mcp-server/http, so neither gate above covers it.
+# This one reads the body rather than the status, because during startup /rest/*
+# answers 200 with the plain text "n8n is starting up. Please wait". A status
+# check passes on that, `POST /rest/owner/setup` returns 200 without creating an
+# owner, and every authenticated call afterwards is a 401 that surfaces two steps
+# later as a JSON parse error.
+echo "▸ Waiting for the /rest API to answer with JSON ..."
+rest_ready=no
+for _ in $(seq 1 45); do
+  if curl -s "$N8N_URL/rest/settings" \
+     | python3 -c "import json,sys; json.load(sys.stdin)['data']['userManagement']" >/dev/null 2>&1; then
+    rest_ready=yes
+    break
+  fi
+  sleep 2
+done
+[ "$rest_ready" = yes ] || {
+  echo "✗ $N8N_URL/rest/settings is not returning JSON after ~90s."
+  echo "  Last body, first 120 bytes:"
+  curl -s "$N8N_URL/rest/settings" | head -c 120; echo
+  echo "  n8n answers 200 with a plain-text startup message, so this is a slow start"
+  echo "  rather than a broken API. Give it longer, or check 'docker logs'."
+  exit 1
+}
+
 echo "▸ Creating owner account ($OWNER_EMAIL) ..."
 code=$(curl -s -c "$CK" -o /tmp/owner.json -w '%{http_code}' -X POST "$N8N_URL/rest/owner/setup" \
   -H 'Content-Type: application/json' \
@@ -75,8 +100,18 @@ curl -s -b "$CK" -o /dev/null -X PATCH "$N8N_URL/rest/mcp/settings" \
   -H 'Content-Type: application/json' -d '{"mcpAccessEnabled":true}'
 
 echo "▸ Minting MCP Server API key (rotate) ..."
+# Report what came back rather than raising. A traceback here reads like a bug in
+# this script; the usual cause is an HTML error page from an unmounted route, or a
+# session that did not authenticate.
 MCPKEY=$(curl -s -b "$CK" -X POST "$N8N_URL/rest/mcp/api-key/rotate" -H 'Content-Type: application/json' -d '{}' \
-  | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['apiKey'])")
+  | python3 -c "
+import sys, json
+raw = sys.stdin.read()
+try:
+    print(json.loads(raw)['data']['apiKey'])
+except Exception:
+    sys.stderr.write('✗ /rest/mcp/api-key/rotate did not return a key. First 200 bytes:\n' + raw[:200] + '\n')
+")
 [ -n "$MCPKEY" ] || { echo "✗ failed to mint MCP key"; exit 1; }
 
 echo "▸ Writing N8N_MCP_TOKEN into $ENV_FILE ..."

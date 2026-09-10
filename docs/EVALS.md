@@ -59,8 +59,8 @@ does it ever offer an alternative the policy did not authorise?
 python3 -m venv .venv-eval && .venv-eval/bin/pip install -r eval/requirements.txt
 
 .venv-eval/bin/python eval/run_eval.py \
-  --model nvidia/nvidia-nemotron-nano-9b-v2 \
-  --model nvidia/nemotron-3-nano-30b-a3b
+  --model nvidia/nemotron-3-nano-30b-a3b \
+  --model nvidia/nemotron-3-super-120b-a12b
 ```
 
 **`node` has to be on `PATH`, and it is not an optional extra.** The rules exist once, in
@@ -160,8 +160,9 @@ mean budget; it is deliberating at length before committing.
 
 ## 3.1 Layer 3: the whole path, measured
 
-Run on 2026-08-20, all 39 cases out through the MCP Server Trigger and back through the decision
-workflow and the data plane. From `eval/results/e2e/summary.json`.
+Run on 2026-08-27 against `nemotron-3-nano-30b-a3b`, all 39 cases out through the MCP Server
+Trigger and back through the decision workflow and the data plane. From
+`eval/results/e2e/summary.json`.
 
 | | Result |
 |---|---|
@@ -170,8 +171,8 @@ workflow and the data plane. From `eval/results/e2e/summary.json`.
 | Exactly one audit record per call | **yes, 0 wrong** |
 | ALLOWs that returned a real result | **15 / 15** |
 | Alternatives invented that policy did not authorise | **0** |
-| Wall clock p50 | **1517 ms** |
-| Wall clock p95 | **2082 ms**, and see the warning below |
+| Wall clock p50 | **2375 ms** |
+| Wall clock p95 | **4901 ms**, and see the warning below |
 
 Every figure in that table is a field of `eval/results/e2e/summary.json`, so it is one
 `cat` away from being re-checked, and it changes whenever the harness is re-run. The fields are
@@ -184,17 +185,21 @@ MCP round trip, three HTTP fetches inside the workflow (the policy, the catalog 
 prompts, each a GET to `:4301`), the model call, the audit write and, on an ALLOW, the data
 plane. §3's figures are the model call alone and are roughly a third to a half of this.
 
-**Do not quote the p95 as a single number.** Five runs of this harness against a gateway whose
-decision path did not change gave p95 figures of **2596, 3105, 4748, 9382 and 2082 ms**, a 4.5×
-spread. The p50 moved far less, 1398 to 1822. The 9382 run is the instructive one: two cases
-carried the whole tail, at 10021 and 9382 ms, with the other 37 under 3.1 seconds. Which two is
-noise rather than a finding: they share no rule, no tool and no data-plane path, and a different
-pair will be slow next run. The cause is not the gateway. The model call dominates each
-request, `integrate.api.nvidia.com` is a shared free tier, and
+**Do not quote the p95 as a single number.** Five runs against the previous policy brain, on a
+decision path that did not change between them, gave p95 figures of **2596, 3105, 4748, 9382 and
+2082 ms**, a 4.5× spread. The p50 moved far less, 1398 to 1822. The 9382 run is the one to read:
+two cases carried the whole tail, at 10021 and 9382 ms, with the other 37 under 3.1 seconds.
+Which two is noise rather than a finding: they share no rule, no tool and no data-plane path, and
+a different pair will be slow next run. The cause is not the gateway. The model call dominates
+each request, `integrate.api.nvidia.com` is a shared free tier, and
 [MODEL_STRATEGY.md](MODEL_STRATEGY.md) §4d records another model's latency swinging tenfold
-within a day on the same prompt. So quote it for stage timing as **"p50 around 1.5 seconds,
-tail highly variable on a hosted endpoint"**, and the tail is one of the things Phase 6
-should re-measure on-box, where the queue is ours.
+within a day on the same prompt.
+
+**The current policy brain is slower.** Three runs on 2026-08-27 gave p50 2448, 2351 and 2375 ms
+against p95 5106, 5830 and 4901. `nemotron-3-nano-30b-a3b` measures 258 mean output tokens where
+§4d records 57.6 for the previous brain, so the higher p50 follows from the model rather than the
+queue. Quote it as **"p50 around 2.4 seconds, tail highly variable on a hosted endpoint"**. The
+tail is one of the things Phase 6 should re-measure on-box, where the queue is ours.
 
 That variance is also the argument for the deterministic fallback rather than a longer timeout:
 a tail this wide on someone else's queue is not something a demo can wait out.

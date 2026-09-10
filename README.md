@@ -57,7 +57,7 @@ model-worded explanation and a sanctioned alternative. An ALLOW runs the data pl
 back with output rather than a placeholder. A `GROUP BY` computed where the rows live, records
 projected to the columns that were asked for, or a training job's evaluation metrics and none
 of its training set. Every call either way writes one audit record to a port the agent cannot reach. All 39
-cases were replayed through the deployed front door on 2026-08-19; all fifteen ALLOWs
+cases were replayed through the deployed front door on 2026-08-27; all fifteen ALLOWs
 returned a result rather than a placeholder, and the figures are in
 [docs/EVALS.md](docs/EVALS.md) §3.1.
 

@@ -54,7 +54,8 @@ Every figure comes from a file in `eval/results/`, never from memory. If a numbe
 sourced, say so instead of quoting it.
 
 Two figures are known unstable and must not be quoted as single values: the end-to-end p95
-(seven runs gave 2596, 3105, 4748, 9382, 2082, 5106 and 5830 ms) and any latency for the 120B, which moved
+(five runs on the previous policy brain gave 2596, 3105, 4748, 9382 and 2082 ms; three on the
+current one gave 5106, 5830 and 4901) and any latency for the 120B, which moved
 tenfold within a day on a shared endpoint. Token counts and truncation rates are stable.
 
 Quotations of model output are artefacts of a dated run. Never edit one to match current
@@ -73,8 +74,11 @@ bash policy/prove_single_egress.sh              # the sandbox has one egress rou
 .venv-eval/bin/python eval/e2e_check.py         # the whole path; needs the stack up
 ```
 
-`e2e_check.py` is the regression gate for any refactor. It must come back 36/36 agreeing, one
-audit record per call, and every ALLOW returning a result.
+`e2e_check.py` is the regression gate for any refactor. It must come back 38/38 agreeing, one
+audit record per call, and every ALLOW returning a result. Read `gateway_answer_source` in the
+trace as well: agreement alone cannot tell a working model from an absent one, because the
+engine decides and the gateway composes the wording from policy data when the model gives
+nothing usable.
 
 **A green check is not proof the mechanism works.** Three silent successes have been found here: a
 policy prover reporting PASS over rules that enforced nothing because `enforcement: enforce` was

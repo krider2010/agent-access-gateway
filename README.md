@@ -75,6 +75,12 @@ around the decision. Four things: that a tool call resolves to the request the r
 that the policy is fetched rather than baked in, that exactly one audit record is written per
 call, and that a sanctioned path actually executes.
 
+They do not measure whether the model's explanation is true. The rules make the decision and the
+model words it, so wording is the model's only contribution, and the harness checks that a named
+alternative is one the policy offered rather than that the reason given is correct. A fluent,
+confidently wrong explanation scores full marks. `eval/run_eval.py` prints every answer beside the
+rationale it was given, under "Review" in its report, for a person to read.
+
 ## Getting started
 
 **Follow [docs/SETUP.md](docs/SETUP.md) for a first run.** It names the failure each step

@@ -781,7 +781,49 @@ def write_report_md(path: Path, model: str, summary: dict[str, Any], records: li
         lines += ["", "## Fallback used (model output was not trusted)", ""] + [
             f"- {c}" for c in summary["fallback_case_ids"]
         ]
+    lines += _review_section(records)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _review_section(records: list[dict[str, Any]]) -> list[str]:
+    """The part of the model's job nothing above measures: whether the prose is true.
+
+    Every other metric here scores the engine, except redirect validity. A model can name the
+    right decision and rule, offer a sanctioned alternative, and still give a reason that is
+    false. That passes every check, and the engineer reads the false reason.
+
+    So this is printed rather than scored: what the model was given, beside what it wrote, for
+    a person to read once per policy-brain change. No similarity heuristic, deliberately. The
+    failure it was written for inverted an aggregate's floor logic while quoting the correct
+    number, and no cheap textual check catches that.
+
+    Denials first, because a wrong reason does the most harm where something was refused.
+    """
+    reviewable = [r for r in records if r.get("model_response_text")]
+    if not reviewable:
+        return []
+    reviewable.sort(key=lambda r: (r["engine_decision"] == "ALLOW", r["case_id"]))
+
+    out = [
+        "",
+        "## Review: does the prose match the rule it was given",
+        "",
+        "Not scored, and not scoreable by this harness. Read it after any change to the policy "
+        "brain and check each answer against the rationale above it. A confidently wrong "
+        "explanation passes every metric in this report.",
+    ]
+    for r in reviewable:
+        source = r["answer_source"]
+        note = "" if source == "model" else f"  (answer_source: {source}, so this shipped instead)"
+        out += [
+            "",
+            f"### {r['case_id']} — {r['engine_decision']}/{r['engine_matched_rule']}{note}",
+            "",
+            f"- **asked**: {(r.get('query') or '').strip()}",
+            f"- **rationale given**: {(r.get('engine_rationale') or '').strip()}",
+            f"- **model wrote**: {(r.get('model_response_text') or '').strip()}",
+        ]
+    return out
 
 
 def _fmt_pct(x: Optional[float]) -> str:

@@ -397,8 +397,8 @@ function show(view) {
   if (view === 'evals') renderEvals();
 }
 
-// The tab is in the URL so a view can be opened directly. On stage that means the policy tab is
-// a bookmark rather than a click, and it survives a reload mid-demo.
+// The tab is in the URL so a view can be opened directly. That makes any tab a bookmark rather
+// than a click, and it survives a reload.
 for (const tab of document.querySelectorAll('.tab')) {
   tab.addEventListener('click', () => { window.location.hash = tab.dataset.view; });
 }

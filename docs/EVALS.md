@@ -397,8 +397,8 @@ resting on `R1` or `R4` matching first, since neither covers catalog scope to a 
   and the index-only request in one sentence, so it says the general thing. Giving the model
   the index detail means either a scope-aware rationale or passing the rule's `notes`
   through, and both change how the policy document is structured. Until then, the specific
-  point that an index is a movement trace has to come from the presenter rather than the
-  screen.
+  point that an index is a movement trace has to come from whoever is reading the output,
+  not from the output itself.
 - **The redirect keyword list was tuned against this run's outputs.** Three cases fell back
   on the first pass for scoring reasons rather than model failures. Two fell back because
   `train_in_place` matched generic phrases such as "within the enclave" that appear in any

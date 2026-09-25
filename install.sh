@@ -235,8 +235,8 @@ if [ "${LIVE_COUNT:-0}" -eq 0 ] && [ -z "$SANDBOX_ARG" ]; then
   # Name the sandbox and pin the agent runtime. Left unset, `nemoclaw onboard`
   # picks its own: an unpredictable name in every command and doc, and no
   # guarantee of the runtime this demo is built around. `lena-agent` is the demo
-  # persona's agent (docs/SCENARIO.md); it reads correctly on stage in
-  # `openshell sandbox list`.
+  # persona's agent (docs/SCENARIO.md), so `openshell sandbox list` reads as the
+  # scenario describes it.
   NEMOCLAW_SANDBOX_NAME="${NEMOCLAW_SANDBOX_NAME:-lena-agent}"
   NEMOCLAW_AGENT="${NEMOCLAW_AGENT:-openclaw}"
 

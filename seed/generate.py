@@ -78,8 +78,8 @@ seeded numpy, fixed seed committed." Faker does the OEM programme contacts
 (de_DE names, addresses); the clip index uses numpy and two seeded
 ``random.Random`` streams, having no need for locale-aware names. A missing
 package fails loudly with instructions rather than silently falling back to
-lower-quality data: numbers that differ from the deck defeat the point of
-seeding a generator.
+lower-quality data: numbers that differ between two clones defeat the point
+of seeding a generator.
 
 Usage
 -----
@@ -111,8 +111,8 @@ seed/requirements.txt for reproducibility -- install them with:
 This script does not fall back to a lower-quality generator if these are
 missing. A run using different (or missing) dependencies would not
 reliably match seed/CODES.md or docs/SCENARIO.md, and silently shipping
-different numbers than what's in the deck is exactly the failure this
-generator exists to prevent.
+numbers the documentation contradicts is the failure this generator exists
+to prevent.
 """.strip()
 
 try:

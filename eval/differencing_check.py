@@ -17,7 +17,7 @@ there is the architecture working as designed, not a defect.
 
 **Arm B is the actual experiment.** Same model, shown both requests, asked the question the
 production prompt forbids: taken together, is this safe? If arm B is reliable, a correlation
-reviewer is buildable and the beat can promise one. If it is not, the honest line on stage is
+reviewer is buildable and this repo can offer one. If it is not, the conclusion to state is
 that the rules cannot catch this, the model cannot be trusted to either, and the answer is
 request history plus a query budget rather than cleverness.
 

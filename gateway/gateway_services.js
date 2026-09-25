@@ -1588,7 +1588,7 @@ function createGatewayServer() {
     req.on('end', () => {
       // Every handler below is synchronous, so this try/catch is the whole error boundary.
       // Without it an unforeseen throw takes the process down and the gateway loses its policy
-      // source mid-demo. With it, the caller gets a 500 saying what happened.
+      // source mid-run. With it, the caller gets a 500 saying what happened.
       try {
         if (req.method === 'GET') {
           handleGet(req, res, url);

@@ -24,7 +24,7 @@ Each time the check turned out to be the thing worth deleting.
 
 - the policy engine: two implementations plus a cross-check, now `gateway/policy_engine.js` alone
 - the prompts: three copies plus two drift checks, now `gateway/prompts.yaml` alone
-- the redirect keyword list: still fitted to observed answers, still the weakest link
+- the redirect keyword list: one list, still fitted to observed answers
 
 If you find yourself writing a checker to prove two files agree, delete one of the files.
 
@@ -53,10 +53,8 @@ Run the `no-ai-slop` and `prose-mechanics` skills over any markdown or comment b
 Every figure comes from a file in `eval/results/`, never from memory. If a number cannot be
 sourced, say so instead of quoting it.
 
-Two figures are known unstable and must not be quoted as single values: the end-to-end p95
-(five runs on the previous policy brain gave 2596, 3105, 4748, 9382 and 2082 ms; three on the
-current one gave 5106, 5830 and 4901) and any latency for the 120B, which moved
-tenfold within a day on a shared endpoint. Token counts and truncation rates are stable.
+Token counts and truncation rates hold still. End-to-end latency does not, so quote a range and
+name the run it came from.
 
 Quotations of model output are artefacts of a dated run. Never edit one to match current
 behaviour; recapture it or annotate it as historical.
@@ -80,11 +78,9 @@ trace as well: agreement alone cannot tell a working model from an absent one, b
 engine decides and the gateway composes the wording from policy data when the model gives
 nothing usable.
 
-**A green check is not proof the mechanism works.** Three silent successes have been found here: a
-policy prover reporting PASS over rules that enforced nothing because `enforcement: enforce` was
-missing, a harness reading a hardcoded constant that happened to match the YAML it was supposed to
-be reading, and a full-marks eval over prose nobody had read. When you change where something
-comes from, perturb the source and confirm the change reaches the consumer.
+**A green check is not proof the mechanism works.** A check can pass because it is reading the
+wrong thing, or reading nothing. When you change where something comes from, perturb the source
+and confirm the change reaches the consumer.
 
 **Nothing scores whether the model's explanation is true.** The rules decide and the model words
 the answer, so wording is its only job, and the harness checks that a named alternative exists
@@ -93,16 +89,6 @@ After any change to the policy brain, read the "Review" section of `eval/results
 which prints each answer beside the rationale it was given. There is deliberately no heuristic:
 the one failure seen here inverted an aggregate's floor logic while using the correct number,
 which no cheap textual check catches.
-
-**Two prose-mechanics metrics pull against each other.** Splitting a long sentence raises the
-sticky-sentence ratio, because short sentences are proportionally more function words, and it
-lowers paragraph variance, because the remaining sentences are more uniform in length. Measured
-here: splitting 56 long sentences moved the sticky percentage from 31.9 to 32.0 and raised
-low-variance flags from 50 to 65. Fix the named long sentences and the named sticky ones; do not
-chase either percentage file-wide, because that means rewriting ordinary technical English.
-
-**Never run `git stash` while another agent is working.** It stashes their in-flight edits too.
-Snapshot files into a scratchpad directory instead if you need a baseline to diff against.
 
 ## Traps that will recur
 
@@ -119,6 +105,13 @@ Snapshot files into a scratchpad directory instead if you need a baseline to dif
   with no `policy_denied` string. Use `node:http` with absolute-form URIs.
 - `make rebuild` is destructive and needs `CONFIRM=yes`. It rotates the MCP token, so
   `install.sh` must run afterwards.
+- **The sandbox base is pinned by digest, and a `:latest` in the build chain floats more than it
+  looks.** `sandbox/Dockerfile`'s `BASE_IMAGE` was `ghcr.io/nvidia/nemoclaw/sandbox-base:latest`,
+  and that tag moved between 2026-08-06 and 2026-08-27. Because the runtime stage reads
+  `min_openclaw_version` out of the base's own `blueprint.yaml`, the floating tag was also
+  floating the OpenClaw pin. A rebuild before a recording would have swapped both. Re-resolve
+  deliberately with `docker buildx imagetools inspect …:latest`, then re-run the verification
+  order; the trade is that upstream fixes no longer arrive on their own.
 - `isolate.sh` disables n8n's management API. Run `make n8n-mcp-on` before any build.
 - **Changing `gateway/policy_engine.js` needs the `:4301` service restarted.** It `require`s the
   engine once at startup but re-reads `access_policy.yaml` on every request, so a policy edit is
@@ -127,14 +120,12 @@ Snapshot files into a scratchpad directory instead if you need a baseline to dif
   engine still doing strict equality made R5 match nothing, so every training job was refused by
   the data plane's re-derivation. It failed closed, and it failed silently.
 
-## Claims that must not be overclaimed
+## What the code decides, and what it does not
 
-The ones most likely to slip:
+Two boundaries a change here can quietly cross:
 
-- The law does not forbid the footage leaving. Consent from a filmed stranger is unobtainable,
-  so the company sets its own floor.
-- Rules make the decision. The model words it and cannot change it.
-- Sovereignty is true only once the policy model runs on the box, which is Phase 6.
-- The sandbox has one egress route, and the binary allow-list cannot separate two paths that
-  resolve to one executable. Do not claim the narrower version.
-- The data plane re-derives the verdict; the audit sink does not, and rests on the port alone.
+- Rules make the decision. The model words it and cannot change it. Anything that lets the
+  model's output reach a verdict is a defect.
+- The data plane re-derives the verdict from `gateway/policy_engine.js` and refuses on
+  disagreement. The audit sink does not; `POST /audit` has no verdict to re-derive and rests
+  on the port being unreachable from the sandbox.

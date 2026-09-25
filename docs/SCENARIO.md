@@ -145,7 +145,7 @@ Realism comes from real *standards* with fake *values*:
 - **Referential integrity.** Catalog counts must equal what a query actually returns,
   or the demo contradicts itself on screen.
 
-None of these standards has to be named on stage. They are there so that a detail someone
+None of these standards has to be cited anywhere. They are there so that a detail someone
 zooms in on holds up, not because the argument depends on them. That is a change from the
 previous version of this scenario, where the metadata rung required naming a file format
 and asserting what its header fields contained.
@@ -160,7 +160,7 @@ was filmed.
 
 `seed/generate.py`, `Faker(locale="de_DE")` + seeded `numpy`, fixed seed committed. Data
 is **generated, never committed**. The repo ships the generator, so a stranger cloning it
-gets byte-identical data to what's in the deck.
+gets byte-identical data to the figures quoted throughout these docs.
 
 ## 4. The policy
 
@@ -397,8 +397,8 @@ not change between those two cases; only the admin path does.
 
 Pulling the network cable is the clearest possible demonstration that the decision is
 local: requests keep being decided with the box cut off from everything. It needs someone
-physically at the machine, so it is done live on stage with the hardware present, and
-recorded beforehand as insurance.
+physically at the machine, so it is done in person with the hardware present, and recorded
+beforehand as insurance.
 
 While building remotely, a narrower version of the claim is checked statically instead.
 [`policy/prove_single_egress.sh`](../policy/prove_single_egress.sh) runs NVIDIA's own Z3-backed

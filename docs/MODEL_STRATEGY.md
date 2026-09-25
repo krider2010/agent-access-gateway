@@ -182,7 +182,7 @@ narrate and it narrates.
 
 **Suppression on the 30B is inconsistent rather than absent.** §4b measured 89 completion
 tokens on one sample with `detailed thinking off`; at scale the mean is ~248. Intermittent
-suppression is worse than none, because it passes rehearsal and fails on stage.
+suppression is worse than none, because it passes a short trial and fails in use.
 
 There was also one clean model failure on the 9B: it stated *"There is no sanctioned
 alternative available for this request"* when the policy offered two, then answered the
@@ -252,9 +252,9 @@ day, with the suppression mechanism measured per model.
   mean of 258 output tokens. `/no_think` is the wrong directive here: on this model it leaks
   the scratchpad into the visible answer.
 - **Agent brain: `nvidia/nemotron-3-super-120b-a12b`**, hosted for Phase 1. Roughly 4–5×
-  less bandwidth per token than Ultra-550B, same GTC-2026 family so the narrative stays
-  coherent. If live timing gets tight, fall back to Nano-30B-A3B for both roles: a less
-  impressive number and a much safer demo.
+  less bandwidth per token than Ultra-550B, and the same Nemotron 3 generation as the policy
+  brain, so one family covers both roles. If timing gets tight, fall back to Nano-30B-A3B for
+  both: a less impressive number and a much safer run.
 
   **§4d's finding against the 120B does not touch this choice, though the two sections can look
   as though they disagree.** §4d disqualifies the 120B's *measured latency* (36s p50 on a hosted
@@ -359,8 +359,8 @@ Agent node, so we likely never meet it. Recognise it if it appears.
 
 - **Free tier is ~40 req/min per model** (community-sourced, not an SLA) ⚠. The 37-case set
   across the 4 models in §4d is 148 calls, which is fine (the harness throttles itself to
-  roughly one call every 1.7s and runs sequentially), but don't hammer it during rehearsal on
-  show day. Cache eval results; never re-run for a slide.
+  roughly one call every 1.7s and runs sequentially). Cache eval results rather than re-running
+  a set to re-read one number, and leave headroom on any day the stack has to work.
 - Always set `max_tokens` explicitly. ✅
 - Always suppress reasoning explicitly. ✅
 - Personal NGC key, not legacy. ✅

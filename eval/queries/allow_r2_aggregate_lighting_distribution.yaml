@@ -16,8 +16,8 @@ request:
   # measured value: 7714 had been extrapolated proportionally from the 300-row sample,
   # and once the data plane computed the real GROUP BY the smallest cell (twilight) came
   # out at 7233. The verdict never changed, since both are far above the k=25 floor, but
-  # an estimate sitting in a field the policy tests is exactly the kind of number the
-  # honesty ledger exists to keep out of the repo.
+  # an estimate sitting in a field the policy tests is the kind of number that has to be
+  # measured rather than carried over.
   min_cell_count: 7233
 expect:
   decision: ALLOW

@@ -299,12 +299,12 @@ const policyBrain = languageModel({
   type: '@n8n/n8n-nodes-langchain.lmChatNvidia',
   version: 1,
   config: {
-    name: 'Policy Brain (Nemotron)',
+    name: 'Policy Brain (Hypernova)',
     parameters: {
       model: '@@POLICY_MODEL@@',
       options: { temperature: @@POLICY_TEMPERATURE@@, maxTokens: @@POLICY_MAX_TOKENS@@ },
     },
-    credentials: { nvidiaApi: { id: 'KerblineNvidia01', name: 'NVIDIA Nemotron (Kerbline)' } },
+    credentials: { nvidiaApi: { id: 'KerblineNvidia01', name: 'Hypernova (local)' } },
   },
 });
 

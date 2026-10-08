@@ -76,34 +76,35 @@ NemoClaw is not installed.
 cp .env.template .env
 ```
 
-Then edit `.env`. Every variable is documented in place; three need your attention:
+Then edit `.env`. Every variable is documented in place. The template already points
+inference at the local Hypernova server:
 
 | Variable | Set it to |
 |---|---|
-| `INFERENCE_API_KEY` | Your `nvapi-…` key. |
-| `INFERENCE_MODEL` | The model the sandbox agent reasons with, e.g. `nvidia/nemotron-3-nano-30b-a3b`. |
-| `NEMOCLAW_ONBOARD_MODEL` | A model that answers **well inside 15 seconds** (see below). |
+| `INFERENCE_API_KEY` | `local`. This vLLM does not check the key; a blank value is refused by the scripts. |
+| `INFERENCE_BASE_URL` | `http://127.0.0.1:8000/v1` |
+| `INFERENCE_MODEL` | `hypernova` |
+| `NEMOCLAW_ONBOARD_MODEL` | `hypernova`. It is the only model this host serves. |
 
-`N8N_MCP_TOKEN` is written for you in §5. Leave it blank.
+`N8N_MCP_TOKEN` is written for you in §5. Leave it blank. `OWNER_PASSWORD` still needs a value before `make rebuild`.
 
 ### Why the onboard model is a separate variable
 
 `nemoclaw onboard` validates your inference configuration by sending one chat completion
-with a roughly 15-second budget and no `max_tokens` cap. Every current Nemotron emits a
-reasoning trace by default, and a large one can spend the whole budget thinking before it
-emits a usable token, so validation fails even though the key and endpoint are correct.
+with a roughly 15-second budget and no `max_tokens` cap. A model that reasons first can
+spend that budget before it emits a usable token, so validation fails even though the
+endpoint is correct.
 
-Pick a model measured comfortably inside that budget for this variable only. Your
-runtime model stays `INFERENCE_MODEL` and is applied separately without the probe.
-Measured candidates are in [MODEL_STRATEGY.md](MODEL_STRATEGY.md) §4b;
-`nvidia/nemotron-3-nano-30b-a3b` clears it at about 0.8s.
+This host serves one model, so both variables are `hypernova`. A one-sentence completion
+returned in under 2 seconds on 2026-10-08. The runtime model is still applied afterwards
+with `--no-verify`, so a slow onboard probe does not change which model the agent uses.
 
 Check your key before going further:
 
 ```bash
 curl -s -o /dev/null -w '%{http_code}\n' \
   -H "Authorization: Bearer $INFERENCE_API_KEY" \
-  https://integrate.api.nvidia.com/v1/models      # expect 200
+  "$INFERENCE_BASE_URL/models"      # expect 200
 ```
 
 ## 5. Bring up n8n and build the gateway workflows
@@ -200,6 +201,13 @@ The script works through twelve steps: Dockerfile sync, prerequisites, `.env` va
 sandbox onboard, provider and model configuration, in-sandbox `openclaw.json` patch, gateway
 token, sandbox network policy, skill upload, `config.json`, and
 verification.
+
+The provider step records `INFERENCE_PROVIDER_NAME` and `INFERENCE_MODEL` in
+`~/.nemoclaw/sandboxes.json`. `nemoclaw connect` restores that record onto the live
+inference route. A record left over from an earlier onboard, such as hosted Nemotron,
+is what connect will put back, and a retired model answers HTTP 410. Re-run `make install`
+after changing `.env`. A loopback vLLM also needs `n8n/scripts/bridge_loopback.sh`: the
+OpenShell gateway is inside its cluster and reaches the host as `host.openshell.internal`.
 
 It installs no Python packages on the host. Every host-side helper here is either
 stdlib-only or needs PyYAML alone, so nothing in setup depends on a package index being

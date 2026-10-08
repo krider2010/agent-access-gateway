@@ -35,7 +35,7 @@ N8N_CONTAINER="${N8N_CONTAINER:-n8n-gtc}"
 # Fixed id so the import upserts and so workflow code can reference the credential by a
 # known handle instead of discovering it at build time.
 CRED_ID="${NVIDIA_CRED_ID:-KerblineNvidia01}"
-CRED_NAME="${NVIDIA_CRED_NAME:-NVIDIA Nemotron (Kerbline)}"
+CRED_NAME="${NVIDIA_CRED_NAME:-Hypernova (local)}"
 
 [ -n "${INFERENCE_API_KEY:-}"  ] || fail "INFERENCE_API_KEY not set in .env"
 [ -n "${INFERENCE_BASE_URL:-}" ] || fail "INFERENCE_BASE_URL not set in .env"
@@ -50,14 +50,31 @@ cleanup() { docker exec "$N8N_CONTAINER" rm -f "$CONTAINER_TMP" >/dev/null 2>&1 
 trap cleanup EXIT
 
 echo "▸ Writing credential payload into $N8N_CONTAINER ..."
-CRED_ID="$CRED_ID" CRED_NAME="$CRED_NAME" python3 -c '
+# The credential is read inside the n8n container. 127.0.0.1 there is the container
+# itself, not the host where vLLM is published. host.docker.internal is the name
+# up.sh maps to the host. The eval harness and OpenShell run on the host, so .env
+# keeps the loopback URL and only this import rewrites it.
+CRED_URL="$(INFERENCE_BASE_URL="$INFERENCE_BASE_URL" python3 -c '
+import os
+from urllib.parse import urlparse, urlunparse
+url = os.environ["INFERENCE_BASE_URL"]
+parts = urlparse(url)
+if parts.hostname in ("127.0.0.1", "localhost"):
+    host = "host.docker.internal"
+    netloc = f"{host}:{parts.port}" if parts.port else host
+    url = urlunparse(parts._replace(netloc=netloc))
+print(url)
+')"
+echo "    Credential base URL: $CRED_URL"
+
+CRED_ID="$CRED_ID" CRED_NAME="$CRED_NAME" CRED_URL="$CRED_URL" python3 -c '
 import json, os
 print(json.dumps([{
     "id":   os.environ["CRED_ID"],
     "name": os.environ["CRED_NAME"],
     "type": "nvidiaApi",
     "data": {
-        "url":    os.environ["INFERENCE_BASE_URL"],
+        "url":    os.environ["CRED_URL"],
         "apiKey": os.environ["INFERENCE_API_KEY"],
     },
 }]))
@@ -71,4 +88,4 @@ docker exec "$N8N_CONTAINER" n8n import:credentials --input="$CONTAINER_TMP" 2>&
 echo
 echo "✓ Credential '$CRED_NAME' (id: $CRED_ID, type: nvidiaApi) imported."
 echo "    Base URL comes from INFERENCE_BASE_URL in .env."
-echo "    Phase 6 repoints this credential's Base URL at the on-box NIM; nothing else changes."
+echo "    A loopback address is rewritten to host.docker.internal for the container."

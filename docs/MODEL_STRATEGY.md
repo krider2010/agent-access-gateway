@@ -3,6 +3,10 @@
 Which models play which role, how we get from build.nvidia.com to a single DGX Spark, and
 what has to be measured rather than assumed.
 
+The multiverse branch deploys one local model for both roles: `hypernova`, served by
+vLLM from `MultiverseComputingCAI/Hypernova-60B-2605` at `http://127.0.0.1:8000/v1`.
+The catalogue below is how the Nemotron choice was made. It is not the deployment.
+
 > Sourced from a research pass on 2026-08-03. Items marked **⚠ unverified** are
 > plausible but unconfirmed and must be smoke-tested before they carry any weight on
 > stage. Items marked **✅** have a cited source or our own prior measurement.

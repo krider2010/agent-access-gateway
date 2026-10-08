@@ -333,10 +333,30 @@ ok "Target sandbox: $SANDBOX_NAME"
 # =============================================================================
 step "Step 5 — Inference provider + model"
 
+# The OpenShell gateway runs inside its cluster container. 127.0.0.1 there is
+# that container, not the host where vLLM is published. host.openshell.internal
+# is the name the cluster already resolves to the docker bridge. Host-side
+# tools keep INFERENCE_BASE_URL; only this provider is rewritten.
+OPENSHELL_BASE_URL="$(INFERENCE_BASE_URL="$INFERENCE_BASE_URL" python3 -c '
+import os
+from urllib.parse import urlparse, urlunparse
+url = os.environ["INFERENCE_BASE_URL"]
+parts = urlparse(url)
+if parts.hostname in ("127.0.0.1", "localhost"):
+    host = "host.openshell.internal"
+    netloc = f"{host}:{parts.port}" if parts.port else host
+    url = urlunparse(parts._replace(netloc=netloc))
+print(url)
+')"
+if [ "$OPENSHELL_BASE_URL" != "$INFERENCE_BASE_URL" ]; then
+  info "OpenShell provider URL: $OPENSHELL_BASE_URL"
+  info "A loopback vLLM port also needs n8n/scripts/bridge_loopback.sh, or this URL never connects."
+fi
+
 if osh provider get "$INFERENCE_PROVIDER_NAME" >/dev/null 2>&1; then
   osh provider update "$INFERENCE_PROVIDER_NAME" \
     --credential INFERENCE_API_KEY \
-    --config "NVIDIA_BASE_URL=$INFERENCE_BASE_URL" \
+    --config "NVIDIA_BASE_URL=$OPENSHELL_BASE_URL" \
     2>/dev/null \
     && ok "Provider '$INFERENCE_PROVIDER_NAME' updated" \
     || warn "Provider '$INFERENCE_PROVIDER_NAME' update failed — continuing"
@@ -345,7 +365,7 @@ else
     --type  "$INFERENCE_PROVIDER_TYPE" \
     --name  "$INFERENCE_PROVIDER_NAME" \
     --credential INFERENCE_API_KEY \
-    --config "NVIDIA_BASE_URL=$INFERENCE_BASE_URL" \
+    --config "NVIDIA_BASE_URL=$OPENSHELL_BASE_URL" \
     && ok "Provider '$INFERENCE_PROVIDER_NAME' created" \
     || fail "Could not create inference provider."
 fi
@@ -357,6 +377,30 @@ osh inference set \
   && ok "Inference: $INFERENCE_PROVIDER_NAME / $INFERENCE_MODEL" \
   || fail "Could not set inference model."
 
+# nemoclaw connect treats ~/.nemoclaw/sandboxes.json as the route for this
+# sandbox and re-applies it whenever the live route differs. Onboard writes
+# that file once. Step 5 used to change only the live route, so the next
+# connect put the retired hosted model back and OpenClaw got HTTP 410.
+SANDBOX_NAME="$SANDBOX_NAME" \
+INFERENCE_PROVIDER_NAME="$INFERENCE_PROVIDER_NAME" \
+INFERENCE_MODEL="$INFERENCE_MODEL" \
+python3 - <<'PY'
+import json, os
+from pathlib import Path
+path = Path.home() / ".nemoclaw" / "sandboxes.json"
+if not path.exists():
+    raise SystemExit(0)
+data = json.loads(path.read_text())
+entry = data.get("sandboxes", {}).get(os.environ["SANDBOX_NAME"])
+if entry is None:
+    raise SystemExit(0)
+entry["provider"] = os.environ["INFERENCE_PROVIDER_NAME"]
+entry["model"] = os.environ["INFERENCE_MODEL"]
+path.write_text(json.dumps(data, indent=2) + "\n")
+os.chmod(path, 0o600)
+PY
+ok "Sandbox record: $INFERENCE_PROVIDER_NAME / $INFERENCE_MODEL"
+
 # =============================================================================
 # STEP 6: Patch openclaw.json inside sandbox with the chosen model
 # =============================================================================
@@ -364,6 +408,8 @@ step "Step 6 — Patch openclaw model inside sandbox"
 
 # openclaw.json is root-owned (444) inside the sandbox, so the sandbox user cannot
 # write it. Reached by kubectl exec (root) through the cluster container.
+# contextWindow is Hypernova's served max_model_len (16384). A larger window is
+# rejected by this vLLM.
 _CLUSTER_CONTAINER=$(docker ps --format "{{.Names}}" 2>/dev/null \
   | grep "^openshell-cluster-" | head -1 || true)
 
@@ -385,7 +431,7 @@ d['models']['providers']['inference']['models'] = [{
     'reasoning': False,
     'input': ['text'],
     'cost': {'input': 0, 'output': 0, 'cacheRead': 0, 'cacheWrite': 0},
-    'contextWindow': 131072,
+    'contextWindow': 16384,
     'maxTokens': 4096
 }]
 d['agents']['defaults']['model']['primary'] = 'inference/' + model

@@ -35,7 +35,7 @@ The verdict is **deterministic**. Rules in [`policy/access_policy.yaml`](policy/
 are evaluated in a defined order, terminal denials win immediately, and anything
 unmatched is denied, because an unanticipated request is not an authorised one.
 
-A local Nemotron model explains the verdict in plain language and words the sanctioned
+A local Hypernova model explains the verdict in plain language and words the sanctioned
 alternative. It cannot change the decision, and it does not choose the alternative either:
 the engine picks from the matched rule's own list, so a model that cannot invent an
 alternative cannot hallucinate advice. If the model fails to produce a usable answer, a
@@ -83,13 +83,14 @@ rationale it was given, under "Review" in its report, for a person to read.
 
 ## Getting started
 
-**Follow [docs/SETUP.md](docs/SETUP.md) for a first run.** It names the failure each step
-avoids so you can tell whether it applies to you, and a first run has two prerequisites this
-page cannot fit: NemoClaw installed, and host Kubernetes off. The sequence below is the same
-one, condensed, and it is the order that works:
+**Follow [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for a first run on this branch.**
+It starts local Hypernova, the bridge the containers need, and the gateway.
+[docs/SETUP.md](docs/SETUP.md) names the failure each step avoids. A first run
+still needs NemoClaw installed, and host Kubernetes off. The sequence below is
+the same one, condensed:
 
 ```bash
-cp .env.template .env       # then add your build.nvidia.com API key
+cp .env.template .env       # points at local Hypernova; set OWNER_PASSWORD
 make k8s-off                # only if a host Kubernetes is running; see SETUP §2
 make rebuild CONFIRM=yes    # n8n from an empty volume: owner, credential, both
                             # gateway workflows, then the isolation invariant

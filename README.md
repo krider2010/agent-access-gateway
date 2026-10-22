@@ -3,6 +3,12 @@
 A governed access gateway for autonomous agents, built with [n8n](https://n8n.io) and
 NVIDIA NemoClaw.
 
+> **A point-in-time release.** This repository accompanies the GTC Berlin 2026 session and
+> will not be updated. It was built and measured against n8n 2.35.5 and the Nemotron models
+> named in [`docs/MODEL_STRATEGY.md`](docs/MODEL_STRATEGY.md). Pull requests that move it to
+> a newer model or n8n version will not be merged. Issues are closed, and pull requests are
+> open to the named contributors only. Fork it to take it further.
+
 You cannot durably limit what a capable agent is able to *do*. Capability is the point of
 an agent, and a capable one will find another route. The control that holds is governing
 what it is allowed to *touch*: who it is acting as, which data it may reach, what needs a

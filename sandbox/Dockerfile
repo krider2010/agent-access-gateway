@@ -9,7 +9,10 @@
 
 # Global ARG — must be declared before the first FROM to be visible
 # to all FROM directives. Can be overridden via --build-arg.
-ARG BASE_IMAGE=ghcr.io/nvidia/nemoclaw/sandbox-base:latest
+# Pinned by digest to the base this release was built and measured against, which carries
+# OpenClaw 2026.7.1. `:latest` would also move the OpenClaw version, because the runtime stage
+# reads `min_openclaw_version` from the base's own blueprint.yaml.
+ARG BASE_IMAGE=ghcr.io/nvidia/nemoclaw/sandbox-base@sha256:a25787eb1297e5e8c71580214efa08ecdfcbeff6638a29f7540b1d19b7953cef
 
 # Stage 1: Build TypeScript plugin from source
 FROM node:22-slim@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d AS builder
